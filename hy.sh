@@ -1,8 +1,8 @@
 #!/bin/sh
 rm -f /usr/bin/hysteria
-rm -rf /root/Hysteria
-mkdir /root/Hysteria
-mkdir /etc/Hysteria
+rm -rf /root/hysteria
+mkdir /root/hysteria
+mkdir /etc/hysteria
 version=`wget -qO- -t1 -T2 --no-check-certificate "https://api.github.com/repos/HyNetwork/hysteria/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g'`
 	echo -e "The Latest hysteria version:"`echo "${version}"`"\nDownload..."
     get_arch=`arch`
