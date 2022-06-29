@@ -7,7 +7,6 @@ version=`wget -qO- -t1 -T2 --no-check-certificate "https://api.github.com/repos/
     if [ $get_arch = "x86_64" ];then
         wget -N --no-check-certificate https://github.com/HyNetwork/hysteria/releases/download/${version}/hysteria-linux-amd64 -O /usr/bin/hysteria
     else
- [ $get_arch = "aarch64" ];then
         wget -N --no-check-certificate https://github.com/HyNetwork/hysteria/releases/download/${version}/hysteria-linux-arm64 -O /usr/bin/hysteria
 fi
 chmod +x /usr/bin/hysteria
