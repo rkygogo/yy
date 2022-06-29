@@ -15,7 +15,7 @@ fi
 chmod +x /usr/bin/hysteria
 
 openssl ecparam -genkey -name prime256v1 -out /root/hysteria/ca.key
-openssl req -new -x509 -days 36500 -key /root/hysteria/ca.key -out /root/Hysteria/car.crt -subj "/CN=www.baidu.com"
+openssl req -new -x509 -days 36500 -key /root/hysteria/ca.key -out /root/hysteria/ca.crt -subj "/CN=www.baidu.com"
 
 cat <<EOF > /etc/hysteria/server.json
 {
