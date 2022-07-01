@@ -69,7 +69,7 @@ cat <<EOF > /etc/hysteria/config.json
 {
 "listen": ":9527",
 "obfs": "123",
-"resolve_preference": "6"
+"resolve_preference": "6",
 "cert": "/etc/hysteria/ca.crt",
 "key": "/etc/hysteria/ca.key"
 }
