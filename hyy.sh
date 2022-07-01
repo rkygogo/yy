@@ -61,8 +61,8 @@ wget -N https://raw.githubusercontent.com/HyNetwork/hysteria/master/install_serv
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/ca.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/ca.key -out /etc/hysteria/ca.crt -subj "/CN=bing.com"
 
-chmod +x /etc/hysteria/ca.key
-chmod +x /etc/hysteria/ca.crt
+chmod +755 /etc/hysteria/ca.key
+chmod +755 /etc/hysteria/ca.crt
 
 rm -rf /etc/hysteria/config.json
 cat <<EOF > /etc/hysteria/config.json
