@@ -64,10 +64,10 @@ openssl req -new -x509 -days 36500 -key /etc/hysteria/ca.key -out /etc/hysteria/
 chmod +x /etc/hysteria/ca.key
 chmod +x /etc/hysteria/ca.crt
 
-rm -rf /etc/Hysteria/config.json
-mkdir -p /etc/Hysteria/config.json
+rm -rf /etc/hysteria/config.json
+mkdir -p /etc/hysteria/config.json
 chmod +x /etc/hysteria/config.json
-cat <<EOF > /etc/Hysteria/config.json
+cat <<EOF > /etc/hysteria/config.json
 {
 "listen": ":9527",
 "obfs": "123",
