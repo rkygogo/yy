@@ -65,8 +65,6 @@ chmod +x /etc/hysteria/ca.key
 chmod +x /etc/hysteria/ca.crt
 
 rm -rf /etc/hysteria/config.json
-mkdir -p /etc/hysteria/config.json
-chmod +x /etc/hysteria/config.json
 cat <<EOF > /etc/hysteria/config.json
 {
 "listen": ":9527",
