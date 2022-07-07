@@ -83,7 +83,7 @@ systemctl stop hysteria-server >/dev/null 2>&1
 systemctl disable hysteria-server >/dev/null 2>&1
 rm -rf /usr/local/bin/hysteria
 rm -rf /etc/hysteria
-
+mkdir -p /etc/Hysteria
 wget -N https://raw.githubusercontent.com/HyNetwork/hysteria/master/install_server.sh && bash install_server.sh 
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/ca.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/ca.key -out /etc/hysteria/ca.crt -subj "/CN=bing.com"
