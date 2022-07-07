@@ -148,6 +148,44 @@ rm -rf /etc/hysteria
 green "hysteria卸载完成！"
 }
 
-sed -i 's/"resolve_preference": "46"/"resolve_preference": "46"/g' /etc/hysteria/config.json
+changeip(){
+if [ ! -f "/etc/hysteria/config.json" ]; then
+red "未正常安装hysteria!" && exit
+fi
+fip=$(curl ip.gs)
+if [[ -n $(echo $fip | grep ":") ]]; then
+green "当前IPV6优先"
+
+
+
+else
+
+
+green "当前IPV4优先"
+fi
+
+
+切换IPV6优先
+sed -i 's/"resolve_preference": "46"/"resolve_preference": "64"/g' /etc/hysteria/config.json
 systemctl restart hysteria-server
 
+纯V6卸载warp,切换纯IPV6状态
+sed -i 's/"resolve_preference": "46"/"resolve_preference": "6"/g' /etc/hysteria/config.json
+systemctl restart hysteria-server
+
+纯V6卸载warp,切换纯IPV6状态
+sed -i 's/"resolve_preference": "64"/"resolve_preference": "6"/g' /etc/hysteria/config.json
+systemctl restart hysteria-server
+
+切换IPV4优先
+sed -i 's/"resolve_preference": "64"/"resolve_preference": "46"/g' /etc/hysteria/config.json
+systemctl restart hysteria-server
+
+切换IPV6优先
+sed -i 's/"resolve_preference": "6"/"resolve_preference": "64"/g' /etc/hysteria/config.json
+systemctl restart hysteria-server
+
+切换IPV4优先
+sed -i 's/"resolve_preference": "6"/"resolve_preference": "46"/g' /etc/hysteria/config.json
+systemctl restart hysteria-server
+}
