@@ -23,7 +23,7 @@ release="Ubuntu"
 elif cat /proc/version | grep -q -E -i "centos|red hat|redhat"; then
 release="Centos"
 else 
-red "不支持你当前系统，请选择使用Ubuntu,Debian,Centos系统" && rm -rf acme.sh && exit 1
+red "不支持你当前系统，请选择使用Ubuntu,Debian,Centos系统" && exit 1
 fi
 
 [[ $(type -P yum) ]] && yumapt='yum -y' || yumapt='apt -y'
