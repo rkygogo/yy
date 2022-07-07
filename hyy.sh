@@ -88,6 +88,23 @@ openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/ca.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/ca.key -out /etc/hysteria/ca.crt -subj "/CN=bing.com"
 chmod +755 /etc/hysteria/ca.key
 chmod +755 /etc/hysteria/ca.crt
+
+green "hysteria的协议选择如下:"
+yellow "1. udp(默认)"
+yellow "2. wechat-video"
+yellow "3. faketcp"
+readp "选择hysteria的协议(回车跳过默认:1): " Protocol
+case ${Protocol} in
+1)
+hysteria_protocol="udp";;
+2)
+hysteria_protocol="wechat-video";;
+3)
+hysteria_protocol="faketcp";;
+*)
+hysteria_protocol="udp"
+esac
+
 readp "设置hysteria登录端口[1-65535]（回车跳过为2000-65535之间的随机端口）：" port
 if [[ -z $port ]]; then
 port=$(shuf -i 2000-65535 -n 1)
@@ -116,8 +133,10 @@ readp "设置最大下载速度/Mbps(默认:100): " hysteria_down_mbps
 [[ -z "${hysteria_down_mbps}" ]] && hysteria_down_mbps=100
 green "最大下载速度$(hysteria_down_mbps)Mbps"
 
+if [[ ! $vi =~ lxc|openvz ]]; then
 sysctl -w net.core.rmem_max=4000000
 sysctl -p
+fi
 
 if [[ -z $v4 ]]; then
 rpip=6
