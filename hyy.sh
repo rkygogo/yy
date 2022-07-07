@@ -54,7 +54,6 @@ fi
 fi
 [[ $(type -P yum) ]] && yumapt='yum -y' || yumapt='apt -y'
 [[ $(type -P curl) ]] || (yellow "检测到curl未安装，升级安装中" && $yumapt update;$yumapt install curl)
-[[ $(type -P socat) ]] || $yumapt install socat
 $yumapt install lsof -y
 if [[ -z $(grep 'DiG 9' /etc/hosts) ]]; then
 v4=$(curl -s4m5 https://ip.gs -k)
@@ -107,6 +106,7 @@ green "hysteria混淆密码obfs：${obfs}"
 sysctl -w net.core.rmem_max=4000000
 sysctl -p
 
+if [ -z $v4 ]; then
 cat <<EOF > /etc/hysteria/config.json
 {
 "listen": ":${port}",
@@ -116,6 +116,18 @@ cat <<EOF > /etc/hysteria/config.json
 "key": "/etc/hysteria/ca.key"
 }
 EOF
+else
+cat <<EOF > /etc/hysteria/config.json
+{
+"listen": ":${port}",
+"obfs": "${obfs}",
+"resolve_preference": "46",
+"cert": "/etc/hysteria/ca.crt",
+"key": "/etc/hysteria/ca.key"
+}
+EOF
+fi
+
 systemctl enable hysteria-server
 systemctl start hysteria-server
 systemctl restart hysteria-server
@@ -135,3 +147,7 @@ rm -rf /usr/local/bin/hysteria
 rm -rf /etc/hysteria
 green "hysteria卸载完成！"
 }
+
+sed -i 's/"resolve_preference": "46"/"resolve_preference": "46"/g' /etc/hysteria/config.json
+systemctl restart hysteria-server
+
