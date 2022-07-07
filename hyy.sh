@@ -119,20 +119,11 @@ green "最大下载速度$(hysteria_down_mbps)Mbps"
 sysctl -w net.core.rmem_max=4000000
 sysctl -p
 
-if [ -z $v4 ]; then
-cat <<EOF > /etc/hysteria/config.json
-{
-"listen": ":${port}",
-"protocol": "${hysteria_protocol}",
-"up_mbps": ${hysteria_up_mbps},
-"down_mbps": ${hysteria_down_mbps},
-"obfs": "${obfs}",
-"resolve_preference": "6",
-"cert": "/etc/hysteria/ca.crt",
-"key": "/etc/hysteria/ca.key"
-}
-EOF
+if [[ -z $v4 ]]; then
+rpip=6
 else
+rpip=46
+fi
 cat <<EOF > /etc/hysteria/config.json
 {
 "listen": ":${port}",
@@ -140,12 +131,11 @@ cat <<EOF > /etc/hysteria/config.json
 "up_mbps": ${hysteria_up_mbps},
 "down_mbps": ${hysteria_down_mbps},
 "obfs": "${obfs}",
-"resolve_preference": "46",
+"resolve_preference": "${rpip}",
 "cert": "/etc/hysteria/ca.crt",
 "key": "/etc/hysteria/ca.key"
 }
 EOF
-fi
 
 systemctl enable hysteria-server >/dev/null 2>&1
 systemctl start hysteria-server >/dev/null 2>&1
