@@ -25,7 +25,33 @@ release="Centos"
 else 
 red "不支持你当前系统，请选择使用Ubuntu,Debian,Centos系统" && exit 1
 fi
-
+vi=`systemd-detect-virt`
+if [[ $vi = openvz ]]; then
+TUN=$(cat /dev/net/tun 2>&1)
+if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then 
+red "检测到未开启TUN，现尝试添加TUN支持" && sleep 2
+cd /dev
+mkdir net
+mknod net/tun c 10 200
+chmod 0666 net/tun
+TUN=$(cat /dev/net/tun 2>&1)
+if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
+green "添加TUN支持失败，建议与VPS厂商沟通或后台设置开启" && exit 0
+else
+green "恭喜，添加TUN支持成功，现执行重启VPS自动开启TUN守护功能" && sleep 2
+cat>/root/tun.sh<<-\EOF
+#!/bin/bash
+cd /dev
+mkdir net
+mknod net/tun c 10 200
+chmod 0666 net/tun
+EOF
+chmod +x /root/tun.sh
+grep -qE "^ *@reboot root bash /root/tun.sh >/dev/null 2>&1" /etc/crontab || echo "@reboot root bash /root/tun.sh >/dev/null 2>&1" >> /etc/crontab
+green "重启VPS自动开启TUN守护功能已启动"
+fi
+fi
+fi
 [[ $(type -P yum) ]] && yumapt='yum -y' || yumapt='apt -y'
 [[ $(type -P curl) ]] || (yellow "检测到curl未安装，升级安装中" && $yumapt update;$yumapt install curl)
 [[ $(type -P socat) ]] || $yumapt install socat
