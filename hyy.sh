@@ -78,6 +78,12 @@ systemctl stop apache2 >/dev/null 2>&1
 systemctl disable apache2 >/dev/null 2>&1
 lsof -i :80|grep -v "PID"|awk '{print "kill -9",$2}'|sh >/dev/null 2>&1
 green "所有端口已开放"
+
+systemctl stop hysteria-server >/dev/null 2>&1
+systemctl disable hysteria-server >/dev/null 2>&1
+rm -rf /usr/local/bin/hysteria
+rm -rf /etc/hysteria
+
 wget -N https://raw.githubusercontent.com/HyNetwork/hysteria/master/install_server.sh && bash install_server.sh 
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/ca.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/ca.key -out /etc/hysteria/ca.crt -subj "/CN=bing.com"
@@ -128,9 +134,9 @@ cat <<EOF > /etc/hysteria/config.json
 EOF
 fi
 
-systemctl enable hysteria-server
-systemctl start hysteria-server
-systemctl restart hysteria-server
+systemctl enable hysteria-server >/dev/null 2>&1
+systemctl start hysteria-server >/dev/null 2>&1
+systemctl restart hysteria-server >/dev/null 2>&1
 
 hysteriastatus(){
 if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep "active") ]]; then
@@ -141,8 +147,8 @@ fi
 }
 
 uninstall(){
-systemctl stop hysteria-server
-systemctl disable hysteria-server
+systemctl stop hysteria-server >/dev/null 2>&1
+systemctl disable hysteria-server >/dev/null 2>&1
 rm -rf /usr/local/bin/hysteria
 rm -rf /etc/hysteria
 green "hysteria卸载完成！"
