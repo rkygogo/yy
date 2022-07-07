@@ -108,6 +108,14 @@ if [[ -z ${obfs} ]]; then
 obfs=`date +%s%N |md5sum | cut -c 1-6`
 fi
 green "hysteria混淆密码obfs：${obfs}"
+
+readp "设置最大上传速度/Mbps(默认:100): " hysteria_up_mbps
+[[ -z "${hysteria_up_mbps}" ]] && hysteria_up_mbps=100
+green "最大上传速度$(hysteria_up_mbps)Mbps
+readp "设置最大下载速度/Mbps(默认:100): " hysteria_down_mbps
+[[ -z "${hysteria_down_mbps}" ]] && hysteria_down_mbps=100
+green "最大下载速度$(hysteria_down_mbps)Mbps
+
 sysctl -w net.core.rmem_max=4000000
 sysctl -p
 
@@ -115,6 +123,9 @@ if [ -z $v4 ]; then
 cat <<EOF > /etc/hysteria/config.json
 {
 "listen": ":${port}",
+"protocol": "${hysteria_protocol}",
+"up_mbps": ${hysteria_up_mbps},
+"down_mbps": ${hysteria_down_mbps},
 "obfs": "${obfs}",
 "resolve_preference": "6",
 "cert": "/etc/hysteria/ca.crt",
@@ -125,6 +136,9 @@ else
 cat <<EOF > /etc/hysteria/config.json
 {
 "listen": ":${port}",
+"protocol": "${hysteria_protocol}",
+"up_mbps": ${hysteria_up_mbps},
+"down_mbps": ${hysteria_down_mbps},
 "obfs": "${obfs}",
 "resolve_preference": "46",
 "cert": "/etc/hysteria/ca.crt",
