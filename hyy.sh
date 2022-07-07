@@ -104,7 +104,7 @@ if [[ -z ${obfs} ]]; then
 obfs=`date +%s%N |md5sum | cut -c 1-6`
 fi
 green "hysteria混淆密码obfs：${obfs}"
-sysctl -w net.core.rmem_max=8000000
+sysctl -w net.core.rmem_max=4000000
 sysctl -p
 
 cat <<EOF > /etc/hysteria/config.json
@@ -119,3 +119,19 @@ EOF
 systemctl enable hysteria-server
 systemctl start hysteria-server
 systemctl restart hysteria-server
+
+hysteriastatus(){
+if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep "active") ]]; then
+status=$(green "hysteria运行中")
+else
+status=$(red "hysteria未运行")
+fi
+}
+
+uninstall(){
+systemctl stop hysteria-server
+systemctl disable hysteria-server
+rm -rf /usr/local/bin/hysteria
+rm -rf /etc/hysteria
+green "hysteria卸载完成！"
+}
