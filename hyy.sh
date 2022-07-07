@@ -33,9 +33,7 @@ $yumapt install lsof -y
 v6=$(curl -s6m3 https://ip.gs -k)
 v4=$(curl -s4m3 https://ip.gs -k)
 if [[ -z $v4 ]]; then
-yellow "检测到VPS为纯IPV6 Only，添加dns64"
 echo -e nameserver 2a01:4f8:c2c:123f::1 > /etc/resolv.conf
-green "dns64添加完毕"
 sleep 2
 fi
 yellow "关闭防火墙，开放所有端口规则"
@@ -55,26 +53,20 @@ systemctl stop apache2 >/dev/null 2>&1
 systemctl disable apache2 >/dev/null 2>&1
 lsof -i :80|grep -v "PID"|awk '{print "kill -9",$2}'|sh >/dev/null 2>&1
 green "所有端口已开放"
-
 wget -N https://raw.githubusercontent.com/HyNetwork/hysteria/master/install_server.sh && bash install_server.sh 
-
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/ca.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/ca.key -out /etc/hysteria/ca.crt -subj "/CN=bing.com"
-
 chmod +755 /etc/hysteria/ca.key
 chmod +755 /etc/hysteria/ca.crt
-
-rm -rf /etc/hysteria/config.json
 cat <<EOF > /etc/hysteria/config.json
 {
-"listen": ":9527",
-"obfs": "123",
+"listen": ":$PORT",
+"obfs": "$OBFS",
 "resolve_preference": "6",
 "cert": "/etc/hysteria/ca.crt",
 "key": "/etc/hysteria/ca.key"
 }
 EOF
-
 systemctl enable hysteria-server
 systemctl start hysteria-server
 systemctl restart hysteria-server
