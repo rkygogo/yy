@@ -104,6 +104,7 @@ hysteria_protocol="faketcp";;
 *)
 hysteria_protocol="udp"
 esac
+green "确定hysteria协议：${hysteria_protocol}"
 
 readp "设置hysteria登录端口[1-65535]（回车跳过为2000-65535之间的随机端口）：" port
 if [[ -z $port ]]; then
@@ -118,20 +119,20 @@ do
 [[ -n $(ss -ntlp | awk '{print $4}' | grep -w "$port") ]] && yellow "\n端口被占用，请重新输入端口" && readp "自定义hysteria端口:" port
 done
 fi
-green "hysteria登录端口：${port}"
+green "确定hysteria登录端口：${port}"
 
 readp "设置hysteria混淆密码obfs（回车跳过为随机6位字符）：" obfs
 if [[ -z ${obfs} ]]; then
 obfs=`date +%s%N |md5sum | cut -c 1-6`
 fi
-green "hysteria混淆密码obfs：${obfs}"
+green "确定hysteria混淆密码obfs：${obfs}"
 
 readp "设置最大上传速度/Mbps(默认:100): " hysteria_up_mbps
 [[ -z "${hysteria_up_mbps}" ]] && hysteria_up_mbps=100
-green "最大上传速度$(hysteria_up_mbps)Mbps"
+green "确定最大上传速度$(hysteria_up_mbps)Mbps"
 readp "设置最大下载速度/Mbps(默认:100): " hysteria_down_mbps
 [[ -z "${hysteria_down_mbps}" ]] && hysteria_down_mbps=100
-green "最大下载速度$(hysteria_down_mbps)Mbps"
+green "确定最大下载速度$(hysteria_down_mbps)Mbps"
 
 if [[ ! $vi =~ lxc|openvz ]]; then
 sysctl -w net.core.rmem_max=4000000
