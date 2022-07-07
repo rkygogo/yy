@@ -30,11 +30,11 @@ fi
 [[ $(type -P curl) ]] || (yellow "检测到curl未安装，升级安装中" && $yumapt update;$yumapt install curl)
 [[ $(type -P socat) ]] || $yumapt install socat
 $yumapt install lsof -y
-v6=$(curl -s6m3 https://ip.gs -k)
-v4=$(curl -s4m3 https://ip.gs -k)
-if [[ -z $v4 ]]; then
+if [[ -z $(grep 'DiG 9' /etc/hosts) ]]; then
+v4=$(curl -s4m5 https://ip.gs -k)
+if [ -z $v4 ]; then
 echo -e nameserver 2a01:4f8:c2c:123f::1 > /etc/resolv.conf
-sleep 2
+fi
 fi
 yellow "关闭防火墙，开放所有端口规则"
 systemctl stop firewalld.service >/dev/null 2>&1
@@ -58,10 +58,33 @@ openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/ca.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/ca.key -out /etc/hysteria/ca.crt -subj "/CN=bing.com"
 chmod +755 /etc/hysteria/ca.key
 chmod +755 /etc/hysteria/ca.crt
+readp "设置hysteria登录端口[1-65535]（回车跳过为2000-65535之间的随机端口）：" port
+if [[ -z $port ]]; then
+port=$(shuf -i 2000-65535 -n 1)
+until [[ -z $(ss -ntlp | awk '{print $4}' | grep -w "$port") ]]
+do
+[[ -n $(ss -ntlp | awk '{print $4}' | grep -w "$port") ]] && yellow "\n端口被占用，请重新输入端口" && readp "自定义hysteria端口:" port
+done
+else
+until [[ -z $(ss -ntlp | awk '{print $4}' | grep -w "$port") ]]
+do
+[[ -n $(ss -ntlp | awk '{print $4}' | grep -w "$port") ]] && yellow "\n端口被占用，请重新输入端口" && readp "自定义hysteria端口:" port
+done
+fi
+green "hysteria登录端口：${port}"
+
+readp "设置hysteria混淆密码obfs（回车跳过为随机6位字符）：" obfs
+if [[ -z ${obfs} ]]; then
+obfs=`date +%s%N |md5sum | cut -c 1-6`
+fi
+green "hysteria混淆密码obfs：${obfs}"
+sysctl -w net.core.rmem_max=8000000
+sysctl -p
+
 cat <<EOF > /etc/hysteria/config.json
 {
-"listen": ":$PORT",
-"obfs": "$OBFS",
+"listen": ":${port}",
+"obfs": "${obfs}",
 "resolve_preference": "6",
 "cert": "/etc/hysteria/ca.crt",
 "key": "/etc/hysteria/ca.key"
