@@ -8,6 +8,8 @@ yellow(){ echo -e "\033[33m\033[01m$1\033[0m";}
 white(){ echo -e "\033[37m\033[01m$1\033[0m";}
 readp(){ read -p "$(yellow "$1")" $2;}
 [[ $EUID -ne 0 ]] && yellow "请以root模式运行脚本" && exit 1
+start(){
+yellow " 请稍等3秒……正在扫描vps类型及参数中……"
 if [[ -f /etc/redhat-release ]]; then
 release="Centos"
 elif cat /etc/issue | grep -q -E -i "debian"; then
@@ -23,22 +25,41 @@ release="Ubuntu"
 elif cat /proc/version | grep -q -E -i "centos|red hat|redhat"; then
 release="Centos"
 else 
-red "不支持你当前系统，请选择使用Ubuntu,Debian,Centos系统" && exit 1
+red "不支持你当前系统，请选择使用Ubuntu,Debian,Centos系统。" && exit 1
 fi
+vsid=`grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1`
+sys(){
+[ -f /etc/os-release ] && grep -i pretty_name /etc/os-release | cut -d \" -f2 && return
+[ -f /etc/lsb-release ] && grep -i description /etc/lsb-release | cut -d \" -f2 && return
+[ -f /etc/redhat-release ] && awk '{print $0}' /etc/redhat-release && return;}
+op=`sys`
+version=`uname -r | awk -F "-" '{print $1}'`
+main=`uname  -r | awk -F . '{print $1}'`
+minor=`uname -r | awk -F . '{print $2}'`
+bit=`uname -m`
+[[ $bit = x86_64 ]] && cpu=AMD64
+[[ $bit = aarch64 ]] && cpu=ARM64
 vi=`systemd-detect-virt`
+if [[ -n $(sysctl net.ipv4.tcp_congestion_control 2>/dev/null | awk -F ' ' '{print $3}') ]]; then
+bbr=`sysctl net.ipv4.tcp_congestion_control | awk -F ' ' '{print $3}'`
+elif [[ -n $(ping 10.0.0.2 -c 2 | grep ttl) ]]; then
+bbr="openvz版bbr-plus"
+else
+bbr="暂不支持显示"
+fi
 if [[ $vi = openvz ]]; then
 TUN=$(cat /dev/net/tun 2>&1)
 if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then 
-red "检测到未开启TUN，现尝试添加TUN支持" && sleep 2
+red "检测到未开启TUN，现尝试添加TUN支持" && sleep 4
 cd /dev
 mkdir net
 mknod net/tun c 10 200
 chmod 0666 net/tun
 TUN=$(cat /dev/net/tun 2>&1)
-if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
+if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then 
 green "添加TUN支持失败，建议与VPS厂商沟通或后台设置开启" && exit 0
 else
-green "恭喜，添加TUN支持成功，现执行重启VPS自动开启TUN守护功能" && sleep 2
+green "恭喜，添加TUN支持成功，现添加防止重启VPS后TUN失效的TUN守护功能" && sleep 4
 cat>/root/tun.sh<<-\EOF
 #!/bin/bash
 cd /dev
@@ -48,11 +69,12 @@ chmod 0666 net/tun
 EOF
 chmod +x /root/tun.sh
 grep -qE "^ *@reboot root bash /root/tun.sh >/dev/null 2>&1" /etc/crontab || echo "@reboot root bash /root/tun.sh >/dev/null 2>&1" >> /etc/crontab
-green "重启VPS自动开启TUN守护功能已启动"
+green "TUN守护功能已启动"
 fi
 fi
 fi
 [[ $(type -P yum) ]] && yumapt='yum -y' || yumapt='apt -y'
+[[ $(type -P wget) ]] || (yellow "检测到wget未安装，升级安装中" && $yumapt update;$yumapt install wget)
 [[ $(type -P curl) ]] || (yellow "检测到curl未安装，升级安装中" && $yumapt update;$yumapt install curl)
 $yumapt install lsof -y
 if [[ -z $(grep 'DiG 9' /etc/hosts) ]]; then
@@ -78,6 +100,7 @@ systemctl stop apache2 >/dev/null 2>&1
 systemctl disable apache2 >/dev/null 2>&1
 lsof -i :80|grep -v "PID"|awk '{print "kill -9",$2}'|sh >/dev/null 2>&1
 green "所有端口已开放"
+}
 
 systemctl stop hysteria-server >/dev/null 2>&1
 systemctl disable hysteria-server >/dev/null 2>&1
