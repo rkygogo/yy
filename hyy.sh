@@ -295,7 +295,7 @@ green "  6. 卸载hysteria"
 green "  0. 退出脚本 "
 red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 white " VPS系统信息如下："
-white " VPS操作系统: $(blue "$op") \c" && white " 内核版本: $(blue "$version") \c" && white " CPU架构 : $(blue "$cpu") \c" && white " 虚拟化类型: $(blue "$vi") \c" && white " TCP算法: $(blue "$bbr")"
+white " VPS操作系统: $(blue "$op")" && white " 内核版本: $(blue "$version")" && white " CPU架构 : $(blue "$cpu")" && white " 虚拟化类型: $(blue "$vi")" && white " TCP算法: $(blue "$bbr")"
 white " hysteria运行状态：$status"
 echo
 readp "请输入数字:" Input
