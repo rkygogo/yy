@@ -322,7 +322,7 @@ case "$Input" in
 esac
 }
 
-if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep "active") ]]; then
+if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) ]]; then
 chmod +x /root/hyy.sh 
 ln -sf /root/hyy.sh /usr/bin/hy
 fi
