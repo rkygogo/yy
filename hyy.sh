@@ -285,6 +285,12 @@ case "$Input" in
 esac
 }
 
+if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep "active") ]]; then
+chmod +x /root/CFwarp.sh 
+ln -sf /root/CFwarp.sh /usr/bin/hy
+fi
+
+
 if [ $# == 0 ]; then
 start
 start_menu
