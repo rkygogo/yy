@@ -130,6 +130,7 @@ hysteria_protocol="faketcp";;
 hysteria_protocol="udp"
 esac
 green "确定hysteria协议：${hysteria_protocol}"
+systemctl restart hysteria-server >/dev/null 2>&1
 }
 insport(){
 readp "设置hysteria登录端口[1-65535]（回车跳过为2000-65535之间的随机端口）：" port
@@ -191,12 +192,20 @@ status=$(red "未运行")
 fi
 }
 
-uninstall(){
+unins(){
 systemctl stop hysteria-server >/dev/null 2>&1
 systemctl disable hysteria-server >/dev/null 2>&1
 rm -rf /usr/local/bin/hysteria
 rm -rf /etc/hysteria
 green "hysteria卸载完成！"
+}
+
+uphysteriacore(){
+if [[ -f '/usr/local/bin/hysteria' ]]; then
+wget -N https://raw.githubusercontent.com/HyNetwork/hysteria/master/install_server.sh && bash install_server.sh
+systemctl restart hysteria-server >/dev/null 2>&1
+VERSION="$(/usr/local/bin/hysteria -v | awk 'NR==1 {print $3}')"
+green "当前hysteria内核版本号：$VERSION"
 }
 
 changeip(){
@@ -286,13 +295,12 @@ white " hysteria运行状态：$status"
 echo
 readp "请输入数字:" Input
 case "$Input" in     
- 1 ) WGCFv4;;
- 2 ) WGCFv6;;
- 3 ) WGCFv4v6;;
- 4 ) [[ $cpu = AMD64 ]] && SOCKS5ins || bash CFwarp.sh;; 
- 5 ) WARPupre;;
- 6 ) REnfwarp;;	
- 7 ) WARPOC;;
+ 1 ) inshysteria;;
+ 2 ) inspr;;
+ 3 ) ;;
+ 4 ) uphysteriacore;; 
+ 5 ) ;;
+ 6 ) unins;;	
  * ) exit 
 esac
 }
