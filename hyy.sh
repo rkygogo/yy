@@ -131,7 +131,11 @@ hysteria_protocol="faketcp";;
 hysteria_protocol="udp"
 esac
 green "确定hysteria协议：${hysteria_protocol}"
+
+sed -i 's/"protocol": "faketcp"/"protocol": "udp"/g' /etc/hihy/conf/hihyServer.json
 systemctl restart hysteria-server >/dev/null 2>&1
+
+
 }
 insport(){
 readp "设置hysteria登录端口[1-65535]（回车跳过为2000-65535之间的随机端口）：" port
