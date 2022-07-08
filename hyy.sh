@@ -155,12 +155,12 @@ obfs=`date +%s%N |md5sum | cut -c 1-6`
 fi
 green "确定hysteria混淆密码obfs：${obfs}"
 
-readp "设置最大上传速度/Mbps(默认:100): " hysteria_up_mbps
-[[ -z "${hysteria_up_mbps}" ]] && hysteria_up_mbps=100
-green "确定最大上传速度$hysteria_up_mbps"
-readp "设置最大下载速度/Mbps(默认:100): " hysteria_down_mbps
-[[ -z "${hysteria_down_mbps}" ]] && hysteria_down_mbps=100
-green "确定最大下载速度$hysteria_down_mbps"
+#readp "设置最大上传速度/Mbps(默认:100): " hysteria_up_mbps
+#[[ -z "${hysteria_up_mbps}" ]] && hysteria_up_mbps=100
+#green "确定最大上传速度$hysteria_up_mbps"
+#readp "设置最大下载速度/Mbps(默认:100): " hysteria_down_mbps
+#[[ -z "${hysteria_down_mbps}" ]] && hysteria_down_mbps=100
+#green "确定最大下载速度$hysteria_down_mbps"
 }
 
 insconfig(){
@@ -174,8 +174,6 @@ cat <<EOF > /etc/hysteria/config.json
 {
 "listen": ":${port}",
 "protocol": "${hysteria_protocol}",
-"up_mbps": ${hysteria_up_mbps},
-"down_mbps": ${hysteria_down_mbps},
 "obfs": "${obfs}",
 "resolve_preference": "${rpip}",
 "cert": "/etc/hysteria/ca.crt",
