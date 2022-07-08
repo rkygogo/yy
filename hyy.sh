@@ -185,10 +185,10 @@ EOF
 }
 
 hysteriastatus(){
-if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep "active") ]]; then
-noprotocol=`cat /etc/hysteria/config.json | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
+if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) ]]; then
+noprotocol=`cat /etc/hysteria/config.json 2>/dev/null | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
 status=$(white "hysteria运行状态：\c";green "运行中";white " hysteria运行协议：\c";green "$noprotocol" )
-elif [[ -n $(systemctl status hysteria-server 2>/dev/null | grep "inactive") ]]; then
+elif [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w inactive) ]]; then
 status=$(white "hysteria运行状态：\c";yellow "未运行")
 else
 status=$(white "hysteria运行状态：\c";red "未安装")
@@ -215,7 +215,7 @@ fi
 }
 
 changepr(){
-noprotocol=`cat /etc/hysteria/config.json | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
+noprotocol=`cat /etc/hysteria/config.json 2>/dev/null | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
 green "当前使用协议为：$noprotocol"
 echo
 inspr
