@@ -198,8 +198,9 @@ fi
 unins(){
 systemctl stop hysteria-server >/dev/null 2>&1
 systemctl disable hysteria-server >/dev/null 2>&1
-rm -rf /usr/local/bin/hysteria
-rm -rf /etc/hysteria
+rm -f /lib/systemd/system/hysteria-server.service
+rm -rf /usr/local/bin/hysteria /etc/hysteria /usr/bin/hy
+
 green "hysteria卸载完成！"
 }
 
