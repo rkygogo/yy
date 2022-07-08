@@ -96,9 +96,11 @@ iptables -t mangle -F >/dev/null 2>&1
 iptables -F >/dev/null 2>&1
 iptables -X >/dev/null 2>&1
 netfilter-persistent save >/dev/null 2>&1
+if [[ $(type -P apache2) ]]; then
 systemctl stop apache2 >/dev/null 2>&1
 systemctl disable apache2 >/dev/null 2>&1
 lsof -i :80|grep -v "PID"|awk '{print "kill -9",$2}'|sh >/dev/null 2>&1
+fi
 }
 
 inshy(){
