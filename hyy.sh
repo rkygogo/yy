@@ -218,3 +218,52 @@ systemctl restart hysteria-server
 sed -i 's/"resolve_preference": "6"/"resolve_preference": "46"/g' /etc/hysteria/config.json
 systemctl restart hysteria-server
 }
+
+
+clear
+green "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"           
+echo -e "${bblue} ░██     ░██      ░██ ██ ██         ░█${plain}█   ░██     ░██   ░██     ░█${red}█   ░██${plain}  "
+echo -e "${bblue}  ░██   ░██      ░██    ░░██${plain}        ░██  ░██      ░██  ░██${red}      ░██  ░██${plain}   "
+echo -e "${bblue}   ░██ ░██      ░██ ${plain}                ░██ ██        ░██ █${red}█        ░██ ██  ${plain}   "
+echo -e "${bblue}     ░██        ░${plain}██    ░██ ██       ░██ ██        ░█${red}█ ██        ░██ ██  ${plain}  "
+echo -e "${bblue}     ░██ ${plain}        ░██    ░░██        ░██ ░██       ░${red}██ ░██       ░██ ░██ ${plain}  "
+echo -e "${bblue}     ░█${plain}█          ░██ ██ ██         ░██  ░░${red}██     ░██  ░░██     ░██  ░░██ ${plain}  "
+green "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" 
+white "甬哥Gitlab项目  ：gitlab.com/rwkgyg"
+white "甬哥blogger博客 ：ygkkk.blogspot.com"
+white "甬哥YouTube频道 ：www.youtube.com/c/甬哥侃侃侃kkkyg"
+yellow "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+bblue " WARP-WGCF/SOCKS5安装脚本：2022.3.24更新 Beta 8 版本"  
+yellow " 切记：安装WARP成功后，进入脚本快捷方式：cf  其他说明：cf h"
+white " ========================================================================================"
+green "  1. 安装Wgcf-WARP:虚拟IPV4"      
+green "  2. 安装Wgcf-WARP:虚拟IPV6"      
+green "  3. 安装Wgcf-WARP:虚拟IPV4+IPV6" 
+[[ $cpu != AMD64 ]] && red "  4. 提示：当前VPS的CPU并非AMD64架构，目前不支持安装Socks5-WARP(+)" || green "  4. 安装Socks5-WARP：IPV4本地Socks5代理"
+white " -------------------------------------------------------------------------------------------"    
+green "  5. WARP账户升级：WARP+账户与WARP+Teams账户"
+green "  6. WARPR解锁NF奈飞：自动识别WARP配置环境" 
+green "  7. WARP开启、停止、卸载"
+green "  0. 退出脚本 "
+red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+white " VPS系统信息如下："
+white " VPS操作系统: $(blue "$op") \c" && white " 内核版本: $(blue "$version") \c" && white " CPU架构 : $(blue "$cpu") \c" && white " 虚拟化类型: $(blue "$vi") \c" && white " TCP算法: $(blue "$bbr")"
+echo
+readp "请输入数字:" Input
+case "$Input" in     
+ 1 ) WGCFv4;;
+ 2 ) WGCFv6;;
+ 3 ) WGCFv4v6;;
+ 4 ) [[ $cpu = AMD64 ]] && SOCKS5ins || bash CFwarp.sh;; 
+ 5 ) WARPupre;;
+ 6 ) REnfwarp;;	
+ 7 ) WARPOC;;
+ * ) exit 
+esac
+}
+
+if [ $# == 0 ]; then
+start
+start_menu
+fi
+
