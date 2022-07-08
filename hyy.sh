@@ -242,7 +242,8 @@ sed -i 's/"resolve_preference": "6"/"resolve_preference": "46"/g' /etc/hysteria/
 systemctl restart hysteria-server
 }
 
-
+start_menu(){
+hysteriastatus
 clear
 green "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"           
 echo -e "${bblue} ░██     ░██      ░██ ██ ██         ░█${plain}█   ░██     ░██   ░██     ░█${red}█   ░██${plain}  "
@@ -259,18 +260,17 @@ yellow "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 bblue " WARP-WGCF/SOCKS5安装脚本：2022.3.24更新 Beta 8 版本"  
 yellow " 切记：安装WARP成功后，进入脚本快捷方式：cf  其他说明：cf h"
 white " ========================================================================================"
-green "  1. 安装Wgcf-WARP:虚拟IPV4"      
-green "  2. 安装Wgcf-WARP:虚拟IPV6"      
-green "  3. 安装Wgcf-WARP:虚拟IPV4+IPV6" 
-[[ $cpu != AMD64 ]] && red "  4. 提示：当前VPS的CPU并非AMD64架构，目前不支持安装Socks5-WARP(+)" || green "  4. 安装Socks5-WARP：IPV4本地Socks5代理"
-white " -------------------------------------------------------------------------------------------"    
-green "  5. WARP账户升级：WARP+账户与WARP+Teams账户"
-green "  6. WARPR解锁NF奈飞：自动识别WARP配置环境" 
-green "  7. WARP开启、停止、卸载"
+green "  1. 安装hysteria"      
+green "  2. 修改当前协议类型"      
+green "  3. 更新脚本"  
+green "  4. 更新hysteria内核"
+green "  5. 切换ipv4/ipv6优先级" 
+green "  6. 卸载hysteria"
 green "  0. 退出脚本 "
 red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 white " VPS系统信息如下："
 white " VPS操作系统: $(blue "$op") \c" && white " 内核版本: $(blue "$version") \c" && white " CPU架构 : $(blue "$cpu") \c" && white " 虚拟化类型: $(blue "$vi") \c" && white " TCP算法: $(blue "$bbr")"
+white " hysteria运行状态：$status"
 echo
 readp "请输入数字:" Input
 case "$Input" in     
