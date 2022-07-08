@@ -157,10 +157,10 @@ green "确定hysteria混淆密码obfs：${obfs}"
 
 readp "设置最大上传速度/Mbps(默认:100): " hysteria_up_mbps
 [[ -z "${hysteria_up_mbps}" ]] && hysteria_up_mbps=100
-green "确定最大上传速度$(hysteria_up_mbps)Mbps"
+green "确定最大上传速度$hysteria_up_mbps"
 readp "设置最大下载速度/Mbps(默认:100): " hysteria_down_mbps
 [[ -z "${hysteria_down_mbps}" ]] && hysteria_down_mbps=100
-green "确定最大下载速度$(hysteria_down_mbps)Mbps"
+green "确定最大下载速度$hysteria_down_mbps"
 }
 
 insconfig(){
