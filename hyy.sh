@@ -8,7 +8,6 @@ yellow(){ echo -e "\033[33m\033[01m$1\033[0m";}
 white(){ echo -e "\033[37m\033[01m$1\033[0m";}
 readp(){ read -p "$(yellow "$1")" $2;}
 [[ $EUID -ne 0 ]] && yellow "请以root模式运行脚本" && exit 1
-start(){
 yellow " 请稍等3秒……正在扫描vps类型及参数中……"
 if [[ -f /etc/redhat-release ]]; then
 release="Centos"
@@ -47,6 +46,8 @@ bbr="openvz版bbr-plus"
 else
 bbr="暂不支持显示"
 fi
+
+start(){
 if [[ $vi = openvz ]]; then
 TUN=$(cat /dev/net/tun 2>&1)
 if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then 
@@ -83,7 +84,6 @@ if [ -z $v4 ]; then
 echo -e nameserver 2a01:4f8:c2c:123f::1 > /etc/resolv.conf
 fi
 fi
-yellow "关闭防火墙，开放所有端口规则"
 systemctl stop firewalld.service >/dev/null 2>&1
 systemctl disable firewalld.service >/dev/null 2>&1
 setenforce 0 >/dev/null 2>&1
@@ -99,9 +99,9 @@ netfilter-persistent save >/dev/null 2>&1
 systemctl stop apache2 >/dev/null 2>&1
 systemctl disable apache2 >/dev/null 2>&1
 lsof -i :80|grep -v "PID"|awk '{print "kill -9",$2}'|sh >/dev/null 2>&1
-green "所有端口已开放"
 }
 
+inshy(){
 systemctl stop hysteria-server >/dev/null 2>&1
 systemctl disable hysteria-server >/dev/null 2>&1
 rm -rf /usr/local/bin/hysteria
@@ -111,7 +111,8 @@ openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/ca.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/ca.key -out /etc/hysteria/ca.crt -subj "/CN=bing.com"
 chmod +755 /etc/hysteria/ca.key
 chmod +755 /etc/hysteria/ca.crt
-
+}
+inspr(){
 green "hysteria的协议选择如下:"
 yellow "1. udp(默认)"
 yellow "2. wechat-video"
@@ -128,7 +129,8 @@ hysteria_protocol="faketcp";;
 hysteria_protocol="udp"
 esac
 green "确定hysteria协议：${hysteria_protocol}"
-
+}
+insport(){
 readp "设置hysteria登录端口[1-65535]（回车跳过为2000-65535之间的随机端口）：" port
 if [[ -z $port ]]; then
 port=$(shuf -i 2000-65535 -n 1)
@@ -143,7 +145,8 @@ do
 done
 fi
 green "确定hysteria登录端口：${port}"
-
+}
+insobfs(){
 readp "设置hysteria混淆密码obfs（回车跳过为随机6位字符）：" obfs
 if [[ -z ${obfs} ]]; then
 obfs=`date +%s%N |md5sum | cut -c 1-6`
@@ -156,12 +159,10 @@ green "确定最大上传速度$(hysteria_up_mbps)Mbps"
 readp "设置最大下载速度/Mbps(默认:100): " hysteria_down_mbps
 [[ -z "${hysteria_down_mbps}" ]] && hysteria_down_mbps=100
 green "确定最大下载速度$(hysteria_down_mbps)Mbps"
+}
 
-if [[ ! $vi =~ lxc|openvz ]]; then
-sysctl -w net.core.rmem_max=4000000
-sysctl -p
-fi
-
+insconfig(){
+v4=$(curl -s4m5 https://ip.gs -k)
 if [[ -z $v4 ]]; then
 rpip=6
 else
@@ -179,16 +180,13 @@ cat <<EOF > /etc/hysteria/config.json
 "key": "/etc/hysteria/ca.key"
 }
 EOF
-
-systemctl enable hysteria-server >/dev/null 2>&1
-systemctl start hysteria-server >/dev/null 2>&1
-systemctl restart hysteria-server >/dev/null 2>&1
+}
 
 hysteriastatus(){
 if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep "active") ]]; then
-status=$(green "hysteria运行中")
+status=$(green "运行中")
 else
-status=$(red "hysteria未运行")
+status=$(red "未运行")
 fi
 }
 
@@ -241,6 +239,19 @@ systemctl restart hysteria-server
 sed -i 's/"resolve_preference": "6"/"resolve_preference": "46"/g' /etc/hysteria/config.json
 systemctl restart hysteria-server
 }
+
+inshysteria(){
+start && inshy && inspr && insport && insobfs
+if [[ ! $vi =~ lxc|openvz ]]; then
+sysctl -w net.core.rmem_max=4000000
+sysctl -p
+fi
+insconfig
+systemctl enable hysteria-server >/dev/null 2>&1
+systemctl start hysteria-server >/dev/null 2>&1
+systemctl restart hysteria-server >/dev/null 2>&1
+hysteriastatus
+white " hysteria运行状态：$status"
 
 start_menu(){
 hysteriastatus
