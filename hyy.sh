@@ -206,6 +206,9 @@ wget -N https://raw.githubusercontent.com/HyNetwork/hysteria/master/install_serv
 systemctl restart hysteria-server >/dev/null 2>&1
 VERSION="$(/usr/local/bin/hysteria -v | awk 'NR==1 {print $3}')"
 green "当前hysteria内核版本号：$VERSION"
+else
+red "未安装hysteria" && exit
+fi
 }
 
 changeip(){
