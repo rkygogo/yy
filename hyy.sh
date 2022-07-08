@@ -218,7 +218,7 @@ changepr(){
 noprotocol=`cat /etc/hysteria/config.json | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
 green "当前使用协议为：$noprotocol"
 inspr
-sed -i 's/"protocol": "$noprotocol"/"protocol": "$hysteria_protocol"/g' /etc/hysteria/config.json
+sed -i "s/$noprotocol/$hysteria_protocol/g" /etc/hysteria/config.json
 systemctl restart hysteria-server 
 }
 
