@@ -186,9 +186,12 @@ EOF
 
 hysteriastatus(){
 if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep "active") ]]; then
-status=$(green "运行中")
+noprotocol=`cat /etc/hysteria/config.json | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
+status=$(white "hysteria运行状态：\c";green "运行中";white "hysteria运行协议：\c";green "$noprotocol" )
+elif [[ -n $(systemctl status hysteria-server 2>/dev/null | grep "inactive") ]]; then
+status=$(white "hysteria运行状态：\c";yellow "未运行")
 else
-status=$(red "未运行")
+status=$(white "hysteria运行状态：\c";red "未安装")
 fi
 }
 
