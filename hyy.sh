@@ -308,7 +308,7 @@ echo
 readp "请输入数字:" Input
 case "$Input" in     
  1 ) inshysteria;;
- 2 ) inspr;;
+ 2 ) changepr;;
  3 ) ;;
  4 ) uphysteriacore;; 
  5 ) ;;
