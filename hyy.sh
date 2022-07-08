@@ -187,7 +187,7 @@ EOF
 hysteriastatus(){
 if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep "active") ]]; then
 noprotocol=`cat /etc/hysteria/config.json | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
-status=$(white "hysteria运行状态：\c";green "运行中";white "hysteria运行协议：\c";green "$noprotocol" )
+status=$(white "hysteria运行状态：\c";green "运行中";white " hysteria运行协议：\c";green "$noprotocol" )
 elif [[ -n $(systemctl status hysteria-server 2>/dev/null | grep "inactive") ]]; then
 status=$(white "hysteria运行状态：\c";yellow "未运行")
 else
@@ -217,6 +217,7 @@ fi
 changepr(){
 noprotocol=`cat /etc/hysteria/config.json | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
 green "当前使用协议为：$noprotocol"
+echo
 inspr
 sed -i "s/$noprotocol/$hysteria_protocol/g" /etc/hysteria/config.json
 systemctl restart hysteria-server 
@@ -306,7 +307,7 @@ green "  0. 退出脚本 "
 red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 white " VPS系统信息如下："
 white " VPS操作系统: $(blue "$op")" && white " 内核版本: $(blue "$version")" && white " CPU架构 : $(blue "$cpu")" && white " 虚拟化类型: $(blue "$vi")" && white " TCP算法: $(blue "$bbr")"
-white " hysteria运行状态：$status"
+white " $status"
 echo
 readp "请输入数字:" Input
 case "$Input" in     
