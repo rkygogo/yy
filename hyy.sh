@@ -265,6 +265,7 @@ systemctl start hysteria-server >/dev/null 2>&1
 systemctl restart hysteria-server >/dev/null 2>&1
 hysteriastatus
 white " hysteria运行状态：$status"
+}
 
 start_menu(){
 hysteriastatus
