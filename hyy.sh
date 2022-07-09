@@ -240,7 +240,7 @@ fi
 
 
 切换IPV6优先
-sed -i 's/"resolve_preference": "46"/"resolve_preference": "64"/g' /etc/hysteria/config.json
+sed -i '5s/"resolve_preference": "46"/"resolve_preference": "64"/g' /etc/hysteria/config.json
 systemctl restart hysteria-server
 
 纯V6卸载warp,切换纯IPV6状态
