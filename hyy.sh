@@ -234,15 +234,33 @@ green "当前IPV6优先"
 
 
 
+rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
+if [ $rpip=6 ]; then
+rrpip=纯IPV6
+elif [ $rpip=46 ]; then
+rrpip=IPV4优先
 else
-
-
-green "当前IPV4优先"
+rrpip=IPV6优先
 fi
-
-
-切换IPV6优先
-sed -i '5s/"resolve_preference": "46"/"resolve_preference": "64"/g' /etc/hysteria/config.json
+green "当前优先出站IP：$rrpip"
+echo
+green "切换IPV4/IPV6出站优先级选择如下:"
+yellow "1. IPV4优先"
+yellow "2. IPV6优先"
+yellow "0. 返回上层"
+readp "请选择: " rrpip
+case ${rrpip} in
+1)
+rrpip="46";;
+2)
+rrpip="6";;
+0)
+;;
+*)
+red "输入错误，请重新选择" && changeip
+esac
+green "确定当前已更换的IP优先级：${rrpip}"
+sed -i "5s/$rpip/$rrpip/g" /etc/hysteria/config.json
 systemctl restart hysteria-server
 
 纯V6卸载warp,切换纯IPV6状态
@@ -302,7 +320,7 @@ green "  1. 安装hysteria"
 green "  2. 修改当前协议类型"      
 green "  3. 更新脚本"  
 green "  4. 更新hysteria内核"
-green "  5. 切换ipv4/ipv6优先级" 
+green "  5. 切换ipv4/ipv6出站优先级" 
 green "  6. 卸载hysteria"
 green "  0. 退出脚本 "
 red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
