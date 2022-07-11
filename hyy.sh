@@ -165,7 +165,7 @@ rpip=6
 else
 rpip=46
 fi
-cat <<EOF > /etc/hysteria/config.json
+cat>/etc/hysteria/config.json<<-\EOF
 {
 "listen": ":${port}",
 "protocol": "${hysteria_protocol}",
