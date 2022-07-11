@@ -40,13 +40,6 @@ bit=`uname -m`
 [[ $bit = x86_64 ]] && cpu=AMD64
 [[ $bit = aarch64 ]] && cpu=ARM64
 vi=`systemd-detect-virt`
-if [[ -n $(sysctl net.ipv4.tcp_congestion_control 2>/dev/null | awk -F ' ' '{print $3}') ]]; then
-bbr=`sysctl net.ipv4.tcp_congestion_control | awk -F ' ' '{print $3}'`
-elif [[ -n $(ping 10.0.0.2 -c 2 | grep ttl) ]]; then
-bbr="openvz版bbr-plus"
-else
-bbr="暂不支持显示"
-fi
 
 start(){
 if [[ $vi = openvz ]]; then
@@ -299,7 +292,7 @@ green "  6. 卸载hysteria"
 green "  0. 退出脚本 "
 red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 white " VPS系统信息如下："
-white " VPS操作系统: $(blue "$op")" && white " 内核版本: $(blue "$version")" && white " CPU架构 : $(blue "$cpu")" && white " 虚拟化类型: $(blue "$vi")" && white " TCP算法: $(blue "$bbr")"
+white " VPS操作系统: $(blue "$op")" && white " 内核版本: $(blue "$version")" && white " CPU架构 : $(blue "$cpu")" && white " 虚拟化类型: $(blue "$vi")"
 white " $status"
 echo
 readp "请输入数字:" Input
