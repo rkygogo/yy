@@ -145,7 +145,7 @@ green "确定hysteria登录端口：${port}"
 insobfs(){
 readp "设置hysteria验证密码（回车跳过为随机6位字符）：" pswd
 if [[ -z ${pswd} ]]; then
-obfs=`date +%s%N |md5sum | cut -c 1-6`
+pswd=`date +%s%N |md5sum | cut -c 1-6`
 fi
 green "确定hysteria验证密码：${pswd}"
 
