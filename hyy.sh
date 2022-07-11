@@ -235,9 +235,9 @@ green "当前IPV6优先"
 
 
 rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
-if [ $rpip=6 ]; then
+if [[ $rpip = 6 ]]; then
 rrpip=纯IPV6
-elif [ $rpip=46 ]; then
+elif [[ $rpip = 46 ]]; then
 rrpip=IPV4优先
 else
 rrpip=IPV6优先
@@ -253,7 +253,7 @@ case ${rrpip} in
 1)
 rrpip="46";;
 2)
-rrpip="6";;
+[[ -z $v4 ]] && rrpip="6" || rrpip="64";;
 0)
 ;;
 *)
