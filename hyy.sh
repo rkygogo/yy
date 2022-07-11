@@ -143,11 +143,11 @@ fi
 green "确定hysteria登录端口：${port}"
 }
 insobfs(){
-readp "设置hysteria混淆密码obfs（回车跳过为随机6位字符）：" obfs
-if [[ -z ${obfs} ]]; then
+readp "设置hysteria验证密码（回车跳过为随机6位字符）：" pswd
+if [[ -z ${pswd} ]]; then
 obfs=`date +%s%N |md5sum | cut -c 1-6`
 fi
-green "确定hysteria混淆密码obfs：${obfs}"
+green "确定hysteria验证密码：${pswd}"
 
 #readp "设置最大上传速度/Mbps(默认:100): " hysteria_up_mbps
 #[[ -z "${hysteria_up_mbps}" ]] && hysteria_up_mbps=100
@@ -168,8 +168,13 @@ cat <<EOF > /etc/hysteria/config.json
 {
 "listen": ":${port}",
 "protocol": "${hysteria_protocol}",
-"obfs": "${obfs}",
 "resolve_preference": "${rpip}",
+"auth": {
+"mode": "password",
+"config": {
+"password": "${pswd}"
+}
+},
 "cert": "/etc/hysteria/ca.crt",
 "key": "/etc/hysteria/ca.key"
 }
@@ -250,7 +255,7 @@ start_menu;;
 red "输入错误，请重新选择" && changeip
 esac
 green "确定当前已更换的IP优先级：${rrpip}"
-sed -i "5s/$rpip/$rrpip/g" /etc/hysteria/config.json
+sed -i "3s/$rpip/$rrpip/g" /etc/hysteria/config.json
 systemctl restart hysteria-server
 }
 
