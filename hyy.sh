@@ -223,13 +223,12 @@ red "未正常安装hysteria!" && exit
 fi
 rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
 if [[ $rpip = 6 ]]; then
-rrpip=纯IPV6
+green "当前优先出站IP：纯IPV6，请安装warp添加IPV4后才支持切换" && start_menu
 elif [[ $rpip = 46 ]]; then
-rrpip=IPV4优先
+green "当前优先出站IP：IPV4优先"
 else
-rrpip=IPV6优先
+green "当前优先出站IP：IPV6优先"
 fi
-green "当前优先出站IP：$rrpip"
 echo
 green "切换IPV4/IPV6出站优先级选择如下:"
 yellow "1. IPV4优先"
