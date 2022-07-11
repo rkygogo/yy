@@ -255,7 +255,7 @@ systemctl restart hysteria-server
 }
 
 inshysteria(){
-start && inshy && inspr && insport && insobfs
+start ; inshy ; inspr ; insport ; insobfs
 if [[ ! $vi =~ lxc|openvz ]]; then
 sysctl -w net.core.rmem_max=4000000
 sysctl -p
