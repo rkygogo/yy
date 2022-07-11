@@ -255,7 +255,7 @@ start_menu;;
 red "输入错误，请重新选择" && changeip
 esac
 green "确定当前已更换的IP优先级：${rrpip}"
-sed -i "3s/$rpip/$rrpip/g" /etc/hysteria/config.json
+sed -i "4s/$rpip/$rrpip/g" /etc/hysteria/config.json
 systemctl restart hysteria-server
 }
 
