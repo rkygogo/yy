@@ -69,9 +69,8 @@ fi
 fi
 fi
 [[ $(type -P yum) ]] && yumapt='yum -y' || yumapt='apt -y'
-[[ $(type -P wget) ]] || (yellow "检测到wget未安装，升级安装中" && $yumapt update;$yumapt install wget)
 [[ $(type -P curl) ]] || (yellow "检测到curl未安装，升级安装中" && $yumapt update;$yumapt install curl)
-$yumapt install lsof -y
+[[ $(type -P lsof) ]] || (yellow "检测到curl未安装，升级安装中" && $yumapt update;$yumapt install lsof)
 if [[ -z $(grep 'DiG 9' /etc/hosts) ]]; then
 v4=$(curl -s4m5 https://ip.gs -k)
 if [ -z $v4 ]; then
