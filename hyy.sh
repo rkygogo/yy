@@ -251,11 +251,14 @@ white " $status"
 hysteriastatus(){
 if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) ]]; then
 noprotocol=`cat /etc/hysteria/config.json 2>/dev/null | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
+wgcfv6=$(curl -s6m6 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2) 
+wgcfv4=$(curl -s4m6 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
 rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
-[[ $rpip = 64 ]] && v4v6=IPV6优先 || v4v6=IPV4优先
-status=$(white "hysteria运行状态：\c";green "运行中";white " hysteria运行协议：\c";green "$noprotocol";white " 当前优先出站IP：\c";green "$v4v6" )
+[[ $rpip = 64 ]] && v4v6="IPV6优先：$(curl -s6 ip.gs)" || v4v6="IPV4优先：$(curl -s4 ip.gs)"
+[[ $wgcfv4 =~ on|plus || $wgcfv6 =~ on|plus ]] && wgcf=WARP运行中 || wgcf=WARP关闭中
+status=$(white "hysteria运行状态：\c";green "运行中";white " hysteria运行协议：\c";green "$noprotocol";white " 当前优先出站IP：  \c";green "$v4v6";white " WARP运行状态：    \c";green "$wgcf" )
 else
-status=$(white "hysteria运行状态：\c";red "未启动")
+status=$(white "hysteria运行状态：\c";red "未启动";white " WARP运行状态：\c";yellow "$wgcf")
 fi
 }
 
@@ -286,7 +289,7 @@ green "  6. 卸载hysteria"
 green "  0. 退出脚本 "
 red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 white " VPS系统信息如下："
-white " VPS操作系统: $(blue "$op")" && white " 内核版本: $(blue "$version")" && white " CPU架构 : $(blue "$cpu")" && white " 虚拟化类型: $(blue "$vi")"
+white " 操作系统:         $(blue "$op")" && white " 内核版本:         $(blue "$version")" && white " CPU架构 :         $(blue "$cpu")" && white " 虚拟化类型:       $(blue "$vi")"
 white " $status"
 echo
 readp "请输入数字:" Input
