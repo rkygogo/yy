@@ -160,7 +160,7 @@ green "确定hysteria验证密码：${pswd}"
 insconfig(){
 v4=$(curl -s4m5 https://ip.gs -k)
 if [[ -z $v4 ]]; then
-rpip=6
+rpip=64
 else
 rpip=46
 fi
@@ -179,17 +179,6 @@ cat <<EOF > /etc/hysteria/config.json
 "key": "/etc/hysteria/ca.key"
 }
 EOF
-}
-
-hysteriastatus(){
-if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) ]]; then
-noprotocol=`cat /etc/hysteria/config.json 2>/dev/null | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
-status=$(white "hysteria运行状态：\c";green "运行中";white " hysteria运行协议：\c";green "$noprotocol" )
-elif [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w inactive) ]]; then
-status=$(white "hysteria运行状态：\c";yellow "未运行")
-else
-status=$(white "hysteria运行状态：\c";red "未安装")
-fi
 }
 
 unins(){
@@ -225,20 +214,6 @@ changeip(){
 if [ ! -f "/etc/hysteria/config.json" ]; then
 red "未正常安装hysteria!" && exit
 fi
-rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
-if [[ $rpip = 6 ]]; then
-v4=$(curl -s4m5 https://ip.gs -k)
-if [[ -z $v4 ]]; then
-yellow "当前优先出站IP：纯IPV6，请安装warp添加IPV4后才支持切换" && sleep 3 && start_menu
-else
-green "当前优先出站IP：纯IPV6，已安装warp添加IPV4支持"
-fi
-elif [[ $rpip = 46 ]]; then
-green "当前优先出站IP：IPV4优先"
-else
-green "当前优先出站IP：IPV6优先"
-fi
-echo
 green "切换IPV4/IPV6出站优先级选择如下:"
 yellow "1. IPV4优先"
 yellow "2. IPV6优先"
@@ -248,7 +223,7 @@ case ${rrpip} in
 1)
 rrpip="46";;
 2)
-[[ -z $v4 ]] && rrpip="6" || rrpip="64";;
+rrpip="64";;
 0)
 start_menu;;
 *)
@@ -271,6 +246,17 @@ systemctl start hysteria-server >/dev/null 2>&1
 systemctl restart hysteria-server >/dev/null 2>&1
 hysteriastatus
 white " $status"
+}
+
+hysteriastatus(){
+if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) ]]; then
+noprotocol=`cat /etc/hysteria/config.json 2>/dev/null | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
+rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
+[[ $rpip = 64 ]] && v4v6=IPV6优先 || v4v6=IPV4优先
+status=$(white "hysteria运行状态：\c";green "运行中";white " hysteria运行协议：\c";green "$noprotocol";white " 当前优先出站IP：\c";green "$v4v6" )
+else
+status=$(white "hysteria运行状态：\c";red "未启动")
+fi
 }
 
 start_menu(){
