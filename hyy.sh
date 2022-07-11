@@ -280,14 +280,14 @@ white "甬哥Gitlab项目  ：gitlab.com/rwkgyg"
 white "甬哥blogger博客 ：ygkkk.blogspot.com"
 white "甬哥YouTube频道 ：www.youtube.com/c/甬哥侃侃侃kkkyg"
 yellow "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-bblue " WARP-WGCF/SOCKS5安装脚本：2022.3.24更新 Beta 8 版本"  
+blue " WARP-WGCF/SOCKS5安装脚本：2022.3.24更新 Beta 8 版本"  
 yellow " 切记：安装WARP成功后，进入脚本快捷方式：cf  其他说明：cf h"
 white " ========================================================================================"
 green "  1. 安装hysteria"      
 green "  2. 修改当前协议类型"      
 green "  3. 更新脚本"  
 green "  4. 更新hysteria内核"
-green "  5. 切换ipv4/ipv6出站优先级" 
+green "  5. 切换IPV4/IPV6出站优先级" 
 green "  6. 卸载hysteria"
 green "  0. 退出脚本 "
 red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -301,7 +301,7 @@ case "$Input" in
  2 ) changepr;;
  3 ) ;;
  4 ) uphysteriacore;; 
- 5 ) ;;
+ 5 ) changeip;;
  6 ) unins;;	
  * ) exit 
 esac
