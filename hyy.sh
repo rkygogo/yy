@@ -227,7 +227,7 @@ v4=$(curl -s4m5 https://ip.gs -k)
 if [[ -z $v4 ]]; then
 yellow "当前优先出站IP：纯IPV6，请安装warp添加IPV4后才支持切换" && sleep 3 && start_menu
 else
-yellow "当前优先出站IP：纯IPV6，已安装warp添加IPV4支持"
+green "当前优先出站IP：纯IPV6，已安装warp添加IPV4支持"
 fi
 elif [[ $rpip = 46 ]]; then
 green "当前优先出站IP：IPV4优先"
