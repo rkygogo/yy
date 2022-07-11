@@ -228,12 +228,6 @@ changeip(){
 if [ ! -f "/etc/hysteria/config.json" ]; then
 red "未正常安装hysteria!" && exit
 fi
-fip=$(curl ip.gs)
-if [[ -n $(echo $fip | grep ":") ]]; then
-green "当前IPV6优先"
-
-
-
 rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
 if [[ $rpip = 6 ]]; then
 rrpip=纯IPV6
@@ -255,32 +249,12 @@ rrpip="46";;
 2)
 [[ -z $v4 ]] && rrpip="6" || rrpip="64";;
 0)
-;;
+start_menu;;
 *)
 red "输入错误，请重新选择" && changeip
 esac
 green "确定当前已更换的IP优先级：${rrpip}"
 sed -i "5s/$rpip/$rrpip/g" /etc/hysteria/config.json
-systemctl restart hysteria-server
-
-纯V6卸载warp,切换纯IPV6状态
-sed -i 's/"resolve_preference": "46"/"resolve_preference": "6"/g' /etc/hysteria/config.json
-systemctl restart hysteria-server
-
-纯V6卸载warp,切换纯IPV6状态
-sed -i 's/"resolve_preference": "64"/"resolve_preference": "6"/g' /etc/hysteria/config.json
-systemctl restart hysteria-server
-
-切换IPV4优先
-sed -i 's/"resolve_preference": "64"/"resolve_preference": "46"/g' /etc/hysteria/config.json
-systemctl restart hysteria-server
-
-切换IPV6优先
-sed -i 's/"resolve_preference": "6"/"resolve_preference": "64"/g' /etc/hysteria/config.json
-systemctl restart hysteria-server
-
-切换IPV4优先
-sed -i 's/"resolve_preference": "6"/"resolve_preference": "46"/g' /etc/hysteria/config.json
 systemctl restart hysteria-server
 }
 
