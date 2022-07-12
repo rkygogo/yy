@@ -112,9 +112,11 @@ readp "选择证书申请方式(回车跳过默认:1): " ca
 case ${ca} in
 1)
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
-openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=bing.com";;
+openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=bing.com"
+chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt;;
 2)
-wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh;;
+wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
+chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt;;
 0)
 start_menu;;
 *)
