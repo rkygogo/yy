@@ -270,7 +270,11 @@ wgcfv6=$(curl -s6m6 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cu
 wgcfv4=$(curl -s4m6 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
 rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
 [[ $rpip = 64 ]] && v4v6="IPV6优先：$(curl -s6 ip.gs)" || v4v6="IPV4优先：$(curl -s4 ip.gs)"
-[[ $wgcfv4 =~ on|plus || $wgcfv6 =~ on|plus ]] && wgcf=WARP运行中 || wgcf=WARP关闭中
+if [[ $wgcfv4 =~ on|plus || $wgcfv6 =~ on|plus ]]; then
+wgcf=WARP运行中
+else
+wgcf=WARP关闭中
+fi
 status=$(white "hysteria运行状态：\c";green "运行中";white " hysteria运行协议：\c";green "$noprotocol";white " 当前优先出站IP：  \c";green "$v4v6";white " WARP运行状态：    \c";green "$wgcf" )
 else
 status=$(white "hysteria运行状态：\c";red "未启动";white " WARP运行状态：\c";yellow "$wgcf")
