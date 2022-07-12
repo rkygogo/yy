@@ -102,11 +102,26 @@ systemctl stop hysteria-server >/dev/null 2>&1
 systemctl disable hysteria-server >/dev/null 2>&1
 rm -rf /usr/local/bin/hysteria
 rm -rf /etc/hysteria
-wget -N https://raw.githubusercontent.com/HyNetwork/hysteria/master/install_server.sh && bash install_server.sh 
-openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/ca.key
-openssl req -new -x509 -days 36500 -key /etc/hysteria/ca.key -out /etc/hysteria/ca.crt -subj "/CN=bing.com"
-chmod +755 /etc/hysteria/ca.key
-chmod +755 /etc/hysteria/ca.crt
+wget -N https://raw.githubusercontent.com/HyNetwork/hysteria/master/install_server.sh && bash install_server.sh
+
+green "hysteria证书申请方式选择如下:"
+yellow "1. 自签证书(默认)"
+yellow "2. ACME一键申请证书"
+yellow "0. 返回上一层"
+readp "选择证书申请方式(回车跳过默认:1): " ca
+case ${ca} in
+1)
+openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
+openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=bing.com";;
+2)
+wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && acme.sh;;
+0)
+start_menu;;
+*)
+red "输入错误，请重新选择" && changeip
+esac
+
+
 }
 inspr(){
 green "hysteria的协议选择如下:"
@@ -175,8 +190,8 @@ cat <<EOF > /etc/hysteria/config.json
 "password": "${pswd}"
 }
 },
-"cert": "/etc/hysteria/ca.crt",
-"key": "/etc/hysteria/ca.key"
+"cert": "/etc/hysteria/cert.crt",
+"key": "/etc/hysteria/private.key"
 }
 EOF
 }
