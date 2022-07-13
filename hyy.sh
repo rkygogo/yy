@@ -102,8 +102,7 @@ systemctl stop hysteria-server >/dev/null 2>&1
 systemctl disable hysteria-server >/dev/null 2>&1
 rm -rf /usr/local/bin/hysteria
 rm -rf /etc/hysteria
-wget -N https://raw.githubusercontent.com/HyNetwork/hysteria/master/install_server.sh && bash install_server.sh
-
+wget -N https://raw.githubusercontent.com/rkygogo/hysteria/master/install_server.sh && bash install_server.sh
 green "hysteria证书申请方式选择如下:"
 yellow "1. 自签证书(默认)"
 yellow "2. ACME一键申请证书"
