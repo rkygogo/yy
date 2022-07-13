@@ -103,11 +103,14 @@ systemctl disable hysteria-server >/dev/null 2>&1
 rm -rf /usr/local/bin/hysteria
 rm -rf /etc/hysteria
 wget -N https://raw.githubusercontent.com/rkygogo/hysteria/master/install_server.sh && bash install_server.sh
+}
+echo
+inskey(){
 green "hysteria证书申请方式选择如下:"
-yellow "1. 自签证书(默认)"
+yellow "1. bing.com自签证书"
 yellow "2. ACME一键申请证书"
 yellow "0. 返回上一层"
-readp "选择证书申请方式(回车跳过默认:1): " ca
+readp "选择证书申请方式: " ca
 case ${ca} in
 1)
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
@@ -120,16 +123,16 @@ chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt;;
 0)
 start_menu;;
 *)
-red "输入错误，请重新选择" && changeip
+red "输入错误，请重新选择" && inskey
 esac
-
 }
+echo
 inspr(){
 green "hysteria的协议选择如下:"
-yellow "1. udp(默认)"
+yellow "1. udp"
 yellow "2. wechat-video"
 yellow "3. faketcp"
-readp "选择hysteria的协议(回车跳过默认:1): " Protocol
+readp "选择hysteria的协议: " Protocol
 case ${Protocol} in
 1)
 hysteria_protocol="udp";;
@@ -138,10 +141,11 @@ hysteria_protocol="wechat-video";;
 3)
 hysteria_protocol="faketcp";;
 *)
-hysteria_protocol="udp"
+red "输入错误，请重新选择" && inspr
 esac
 green "确定hysteria协议：${hysteria_protocol}"
 }
+echo
 insport(){
 readp "设置hysteria登录端口[1-65535]（回车跳过为2000-65535之间的随机端口）：" port
 if [[ -z $port ]]; then
@@ -172,7 +176,7 @@ green "确定hysteria验证密码：${pswd}"
 #[[ -z "${hysteria_down_mbps}" ]] && hysteria_down_mbps=100
 #green "确定最大下载速度$hysteria_down_mbps"
 }
-
+echo
 insconfig(){
 v4=$(curl -s4m5 ip.gs -k)
 [[ -z $v4 ]] && rpip=64 || rpip=46
