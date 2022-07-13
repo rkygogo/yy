@@ -201,7 +201,7 @@ fi
 [[ $ym = www.bing.com ]] && ymip=$ip || ymip=$ym
 cat <<EOF > /root/v2rayn.json
 {
-"server": "$ymip:$PORT",
+"server": "$ymip:${port}",
 "protocol": "${hysteria_protocol}",
 "up_mbps": 1000,
 "down_mbps": 1000,
