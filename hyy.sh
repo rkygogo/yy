@@ -194,7 +194,7 @@ cat <<EOF > /etc/hysteria/config.json
 EOF
 
 ip=$(curl -s6m5 ip.sb -k) || ip=$(curl -s4m5 ip.sb -k)
-if [[ -z $(echo $ip | grep ".") ]]; then
+if [[ -n $(echo $ip | grep ":") ]]; then
 ip="[$ip]"
 fi
 if [[ $ym = www.bing.com ]]; then
