@@ -143,7 +143,6 @@ hysteria_protocol="faketcp";;
 *)
 red "输入错误，请重新选择" && inspr
 esac
-green "确定hysteria协议：${hysteria_protocol}"
 }
 echo
 insport(){
@@ -160,14 +159,12 @@ do
 [[ -n $(ss -ntlp | awk '{print $4}' | grep -w "$port") ]] && yellow "\n端口被占用，请重新输入端口" && readp "自定义hysteria端口:" port
 done
 fi
-green "确定hysteria登录端口：${port}"
 }
 insobfs(){
 readp "设置hysteria验证密码（回车跳过为随机6位字符）：" pswd
 if [[ -z ${pswd} ]]; then
 pswd=`date +%s%N |md5sum | cut -c 1-6`
 fi
-green "确定hysteria验证密码：${pswd}"
 
 #readp "设置最大上传速度/Mbps(默认:100): " hysteria_up_mbps
 #[[ -z "${hysteria_up_mbps}" ]] && hysteria_up_mbps=100
