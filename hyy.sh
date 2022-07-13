@@ -70,7 +70,7 @@ fi
 fi
 [[ $(type -P yum) ]] && yumapt='yum -y' || yumapt='apt -y'
 [[ $(type -P curl) ]] || (yellow "检测到curl未安装，升级安装中" && $yumapt update;$yumapt install curl)
-[[ $(type -P lsof) ]] || (yellow "检测到curl未安装，升级安装中" && $yumapt update;$yumapt install lsof)
+[[ $(type -P lsof) ]] || (yellow "检测到lsof未安装，升级安装中" && $yumapt update;$yumapt install lsof)
 if [[ -z $(grep 'DiG 9' /etc/hosts) ]]; then
 v4=$(curl -s4m5 https://ip.gs -k)
 if [ -z $v4 ]; then
@@ -112,7 +112,8 @@ readp "选择证书申请方式(回车跳过默认:1): " ca
 case ${ca} in
 1)
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
-openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=bing.com"
+openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=www.bing.com"
+ym=www.bing.com
 chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt;;
 2)
 wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
@@ -122,7 +123,6 @@ start_menu;;
 *)
 red "输入错误，请重新选择" && changeip
 esac
-
 
 }
 inspr(){
@@ -175,12 +175,8 @@ green "确定hysteria验证密码：${pswd}"
 }
 
 insconfig(){
-v4=$(curl -s4m5 https://ip.gs -k)
-if [[ -z $v4 ]]; then
-rpip=64
-else
-rpip=46
-fi
+v4=$(curl -s4m5 ip.gs -k)
+[[ -z $v4 ]] && rpip=64 || rpip=46
 cat <<EOF > /etc/hysteria/config.json
 {
 "listen": ":${port}",
@@ -192,8 +188,41 @@ cat <<EOF > /etc/hysteria/config.json
 "password": "${pswd}"
 }
 },
+"alpn": "h3",
 "cert": "/etc/hysteria/cert.crt",
 "key": "/etc/hysteria/private.key"
+}
+EOF
+
+ip=$(curl -s6m5 ip.sb -k) || ip=$(curl -s4m5 ip.sb -k)
+if [[ -z $(echo $ip | grep ".") ]]; then
+ip="[$ip]"
+fi
+[[ $ym = www.bing.com ]] && ymip=$ip || ymip=$ym
+cat <<EOF > /root/v2rayn.json
+{
+"server": "$ymip:$PORT",
+"protocol": "${hysteria_protocol}",
+"up_mbps": 1000,
+"down_mbps": 1000,
+"alpn": "h3",
+"acl": "acl/routes.acl",
+"mmdb": "acl/Country.mmdb",
+"http": {
+"listen": "127.0.0.1:10809",
+"timeout" : 300,
+"disable_udp": false
+},
+"socks5": {
+"listen": "127.0.0.1:10808",
+"timeout": 300,
+"disable_udp": false
+},
+"auth_str": "${pswd}",
+"server_name": "${ym}",
+"insecure": false,
+"retry": 3,
+"retry_interval": 3
 }
 EOF
 }
