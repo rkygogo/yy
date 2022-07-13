@@ -116,14 +116,12 @@ case ${ca} in
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=www.bing.com"
 ym=www.bing.com
-chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt;;
-echo
+chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
+echo;;
 2)
 wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
-chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt;;
-echo
-
-green 
+chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
+echo;;
 0)
 start_menu;;
 *)
