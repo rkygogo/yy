@@ -197,7 +197,11 @@ ip=$(curl -s6m5 ip.sb -k) || ip=$(curl -s4m5 ip.sb -k)
 if [[ -z $(echo $ip | grep ".") ]]; then
 ip="[$ip]"
 fi
-[[ $ym = www.bing.com ]] && (ymip=$ip;ins=true) || (ymip=$ym;ins=false)
+if [[ $ym = www.bing.com ]]; then
+ymip=$ip;ins=true
+else
+ymip=$ym;ins=false
+fi
 cat <<EOF > /root/v2rayn.json
 {
 "server": "$ymip:${port}",
