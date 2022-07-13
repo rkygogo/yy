@@ -107,7 +107,7 @@ wget -N https://raw.githubusercontent.com/rkygogo/hysteria/master/install_server
 echo
 inskey(){
 green "hysteria证书申请方式选择如下:"
-yellow "1. bing.com自签证书"
+yellow "1. www.bing.com自签证书"
 yellow "2. ACME一键申请证书"
 yellow "0. 返回上一层"
 readp "选择证书申请方式: " ca
@@ -117,9 +117,13 @@ openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=www.bing.com"
 ym=www.bing.com
 chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt;;
+echo
 2)
 wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
 chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt;;
+echo
+
+green 
 0)
 start_menu;;
 *)
@@ -198,11 +202,14 @@ ip=$(curl -s6m5 ip.sb -k) || ip=$(curl -s4m5 ip.sb -k)
 if [[ -n $(echo $ip | grep ":") ]]; then
 ip="[$ip]"
 fi
+
 if [[ $ym = www.bing.com ]]; then
 ymip=$ip;ins=true
 else
+ym=$(cat /etc/hysteria/ca.log)
 ymip=$ym;ins=false
 fi
+
 cat <<EOF > /root/v2rayn.json
 {
 "server": "$ymip:${port}",
