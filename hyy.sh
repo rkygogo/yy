@@ -198,7 +198,7 @@ ip=$(curl -s6m5 ip.sb -k) || ip=$(curl -s4m5 ip.sb -k)
 if [[ -z $(echo $ip | grep ".") ]]; then
 ip="[$ip]"
 fi
-[[ $ym = www.bing.com ]] && ymip=$ip || ymip=$ym
+[[ $ym = www.bing.com ]] && (ymip=$ip;ins=true) || (ymip=$ym;ins=false)
 cat <<EOF > /root/v2rayn.json
 {
 "server": "$ymip:${port}",
@@ -220,7 +220,7 @@ cat <<EOF > /root/v2rayn.json
 },
 "auth_str": "${pswd}",
 "server_name": "${ym}",
-"insecure": false,
+"insecure": $ins,
 "retry": 3,
 "retry_interval": 3
 }
