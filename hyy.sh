@@ -128,7 +128,7 @@ fi
 
 inspr(){
 green "hysteria的协议选择如下:"
-readp "1. udp(回车默认)\n2. wechat-video\n3. faketcp\n请选择：" Protocol
+readp "1. udp(回车默认)\n2. wechat-video\n3. faketcp\n请选择：" protocol
 if [ -z "${protocol}" ] || [ $protocol == "1" ];then
 hysteria_protocol="udp"
 elif [ $protocol == "2" ];then
