@@ -145,7 +145,7 @@ blue "已确认传输协议: ${hysteria_protocol}\n"
 }
 
 insport(){
-readp "设置hysteria登录端口[1-65535]（回车跳过为2000-65535之间的随机端口）：" port
+readp "设置hysteria端口[1-65535]（回车跳过为2000-65535之间的随机端口）：" port
 if [[ -z $port ]]; then
 port=$(shuf -i 2000-65535 -n 1)
 until [[ -z $(ss -ntlp | awk '{print $4}' | grep -w "$port") ]]
@@ -158,7 +158,7 @@ do
 [[ -n $(ss -ntlp | awk '{print $4}' | grep -w "$port") ]] && yellow "\n端口被占用，请重新输入端口" && readp "自定义hysteria端口:" port
 done
 fi
-blue "已确认登录端口：$port\n"
+blue "已确认端口：$port\n"
 }
 
 inspswd(){
@@ -285,6 +285,11 @@ green "$(cat /root/HY/URL.txt)"
 changeip(){
 if [ ! -f "/etc/hysteria/config.json" ]; then
 red "未正常安装hysteria!" && exit
+fi
+ip6=$(curl -s6m5 ip.gs -k) 
+ip4=$(curl -s4m5 ip.gs -k)
+if [[ -z $ipv4 || -z $ipv6 ]]; then
+red "经检测，当前VPS非双栈，只有双栈VPS才支持IPV4/IPV6出站优先级切换" && exit
 fi
 green "切换IPV4/IPV6出站优先级选择如下:"
 yellow "1. IPV4优先"
