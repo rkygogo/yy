@@ -111,7 +111,7 @@ fi
 
 inscertificate(){
 green "hysteria协议证书申请方式选择如下:"
-readp "1. www.bing.com自签证书（回车默认）\n2. ACME一键申请证书\n 请选择：" certificate
+readp "1. www.bing.com自签证书（回车默认）\n2. ACME一键申请证书\n请选择：" certificate
 if [ -z "${certificate}" ] || [ $certificate == "1" ];then
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=www.bing.com"
@@ -128,7 +128,7 @@ fi
 
 inspr(){
 green "hysteria的协议选择如下:"
-readp "1. udp(回车默认)\n2. wechat-video\n3. faketcp\n 请选择：" Protocol
+readp "1. udp(回车默认)\n2. wechat-video\n3. faketcp\n请选择：" Protocol
 if [ -z "${protocol}" ] || [ $protocol == "1" ];then
 hysteria_protocol="udp"
 elif [ $protocol == "2" ];then
@@ -271,7 +271,7 @@ sed -i "s/$noprotocol/$hysteria_protocol/g" /etc/hysteria/config.json
 sed -i "s/$noprotocol/$hysteria_protocol/g" /root/HY/v2rayn.json
 sed -i "s/$noprotocol/$hysteria_protocol/g" /root/HY/URL.txt
 systemctl restart hysteria-server
-green "hysteria代理服务的协议已由$noprotocol更换为$hysteria_protocol"
+blue "hysteria代理服务的协议已由$noprotocol更换为$hysteria_protocol"
 green "v2rayn客户端配置文件已更新，保存到 /root/HY/v2rayn.json"
 green "分享链接已更新，保存到 /root/HY/URL.txt"
 green "分享链接已更新: $(cat /root/HY/URL.txt)"
@@ -296,9 +296,9 @@ start_menu;;
 *)
 red "输入错误，请重新选择" && changeip
 esac
-green "确定当前已更换的IP优先级：${rrpip}"
 sed -i "4s/$rpip/$rrpip/g" /etc/hysteria/config.json
 systemctl restart hysteria-server
+blue "确定当前已更换的IP优先级：${rrpip}"
 }
 
 inshysteria(){
@@ -324,9 +324,9 @@ if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) ]]; th
 noprotocol=`cat /etc/hysteria/config.json 2>/dev/null | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
 rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
 [[ $rpip = 64 ]] && v4v6="IPV6优先：$(curl -s6 ip.gs)" || v4v6="IPV4优先：$(curl -s4 ip.gs)"
-status=$(white "hysteria运行状态：\c";green "运行中";white " hysteria运行协议：\c";green "$noprotocol";white " 当前优先出站IP：  \c";green "$v4v6";white " WARP运行状态：    \c";eval echo \$wgcf)
+status=$(white "hysteria运行状态：\c";green "运行中";white "hysteria运行协议：\c";green "$noprotocol";white "当前优先出站IP：  \c";green "$v4v6";white "WARP运行状态：    \c";eval echo \$wgcf)
 else
-status=$(white "hysteria运行状态：\c";red "未启动";white " WARP运行状态：    \c";eval echo \$wgcf)
+status=$(white "hysteria运行状态：\c";red "未启动";white "WARP运行状态：    \c";eval echo \$wgcf)
 fi
 }
 
