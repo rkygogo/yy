@@ -98,6 +98,9 @@ fi
 }
 
 inshy(){
+if [[ -f '/usr/local/bin/hysteria' ]]; then
+green "已安装hysteria，重装请先执行卸载功能" && exit
+fi
 systemctl stop hysteria-server >/dev/null 2>&1
 systemctl disable hysteria-server >/dev/null 2>&1
 rm -rf /usr/local/bin/hysteria /etc/hysteria /root/HY
@@ -127,7 +130,7 @@ fi
 }
 
 inspr(){
-green "hysteria的协议选择如下:"
+green "hysteria的传输协议选择如下:"
 readp "1. udp(回车默认)\n2. wechat-video\n3. faketcp\n请选择：" protocol
 if [ -z "${protocol}" ] || [ $protocol == "1" ];then
 hysteria_protocol="udp"
@@ -252,17 +255,19 @@ green "hysteria卸载完成！"
 }
 
 uphysteriacore(){
-if [[ -f '/usr/local/bin/hysteria' ]]; then
+if [ ! -f '/usr/local/bin/hysteria' ]; then
+red "未正常安装hysteria!" && exit
+fi
 wget -N https://raw.githubusercontent.com/HyNetwork/hysteria/master/install_server.sh && bash install_server.sh
 systemctl restart hysteria-server >/dev/null 2>&1
 VERSION="$(/usr/local/bin/hysteria -v | awk 'NR==1 {print $3}')"
 green "当前hysteria内核版本号：$VERSION"
-else
-red "未安装hysteria" && exit
-fi
 }
 
 changepr(){
+if [ ! -f '/etc/hysteria/config.json' ]; then
+red "未正常安装hysteria!" && exit
+fi
 noprotocol=`cat /etc/hysteria/config.json 2>/dev/null | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
 blue "当前使用协议为：$noprotocol"
 echo
