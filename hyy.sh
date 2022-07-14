@@ -312,7 +312,8 @@ systemctl enable hysteria-server >/dev/null 2>&1
 systemctl start hysteria-server >/dev/null 2>&1
 systemctl restart hysteria-server >/dev/null 2>&1
 hysteriastatus
-white "$status;over"
+white "$status"
+over
 }
 
 hysteriastatus(){
