@@ -116,7 +116,7 @@ if [ -z "${certificate}" ] || [ $certificate == "1" ];then
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=www.bing.com"
 ym=www.bing.com
-blue "证书模式: 自签证书\n"
+blue "已确认证书模式: 自签证书\n"
 chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
 elif [ $protocol == "2" ];then
 wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
@@ -138,7 +138,7 @@ hysteria_protocol="faketcp"
 else 
 red "输入错误，请重新选择" && inspr
 fi
-blue "传输协议: ${hysteria_protocol}\n"
+blue "已确认传输协议: ${hysteria_protocol}\n"
 }
 
 insport(){
@@ -155,7 +155,7 @@ do
 [[ -n $(ss -ntlp | awk '{print $4}' | grep -w "$port") ]] && yellow "\n端口被占用，请重新输入端口" && readp "自定义hysteria端口:" port
 done
 fi
-blue "已确认登录端口：$port"
+blue "已确认登录端口：$port\n"
 }
 
 inspswd(){
@@ -163,7 +163,7 @@ readp "设置hysteria验证密码（回车跳过为随机6位字符）：" pswd
 if [[ -z ${pswd} ]]; then
 pswd=`date +%s%N |md5sum | cut -c 1-6`
 fi
-blue "已确认验证密码：${pswd}"
+blue "已确认验证密码：${pswd}\n"
 #readp "设置最大上传速度/Mbps(默认:100): " hysteria_up_mbps
 #[[ -z "${hysteria_up_mbps}" ]] && hysteria_up_mbps=100
 #green "确定最大上传速度$hysteria_up_mbps"
@@ -173,6 +173,7 @@ blue "已确认验证密码：${pswd}"
 }
 
 insconfig(){
+mkdir -p /root/HY
 v4=$(curl -s4m5 ip.gs -k)
 [[ -z $v4 ]] && rpip=64 || rpip=46
 cat <<EOF > /etc/hysteria/config.json
@@ -233,7 +234,6 @@ EOF
 }
 
 over(){
-mkdir -p /root/HY
 url="hysteria://${ymip}:${port}?protocol=${hysteria_protocol}&auth=${pswd}&peer=${ym}&insecure=${ins}&upmbps=1000&downmbps=1000&alpn=h3#HY-${ymip}"
 echo ${url} > /root/HY/URL.txt
 green "hysteria代理服务安装完成"
@@ -312,7 +312,7 @@ systemctl enable hysteria-server >/dev/null 2>&1
 systemctl start hysteria-server >/dev/null 2>&1
 systemctl restart hysteria-server >/dev/null 2>&1
 hysteriastatus
-white " $status"
+white "$status;over"
 }
 
 hysteriastatus(){
@@ -323,7 +323,7 @@ if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) ]]; th
 noprotocol=`cat /etc/hysteria/config.json 2>/dev/null | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
 rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
 [[ $rpip = 64 ]] && v4v6="IPV6优先：$(curl -s6 ip.gs)" || v4v6="IPV4优先：$(curl -s4 ip.gs)"
-status=$(white "hysteria运行状态：\c";green "运行中";white " hysteria运行协议：\c";green "$noprotocol";white " 当前优先出站IP：  \c";green "$v4v6";white " WARP运行状态：    \c";eval echo \$wgcf;over )
+status=$(white "hysteria运行状态：\c";green "运行中";white " hysteria运行协议：\c";green "$noprotocol";white " 当前优先出站IP：  \c";green "$v4v6";white " WARP运行状态：    \c";eval echo \$wgcf)
 else
 status=$(white "hysteria运行状态：\c";red "未启动";white " WARP运行状态：    \c";eval echo \$wgcf)
 fi
