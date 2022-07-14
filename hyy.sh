@@ -120,7 +120,7 @@ openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=www.bing.com"
 chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
 ym=www.bing.com
-blue "已确认证书模式: 自签证书\n"
+blue "已确认证书模式: www.bing.com自签证书\n"
 elif [ $certificate == "2" ];then
 wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
 chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
@@ -309,7 +309,7 @@ blue "确定当前已更换的IP优先级：${rrpip}"
 inshysteria(){
 start ; inshy ; inscertificate ; inspr ; insport ; inspswd
 if [[ ! $vi =~ lxc|openvz ]]; then
-sysctl -w net.core.rmem_max=4000000
+sysctl -w net.core.rmem_max=8000000
 sysctl -p
 fi
 insconfig
