@@ -361,7 +361,7 @@ green "  5. 切换IPV4/IPV6出站优先级"
 green "  6. 卸载hysteria"
 green "  0. 退出脚本 "
 red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-white " VPS系统信息如下："
+white "VPS系统信息如下："
 white "操作系统:         $(blue "$op")" && white "内核版本:         $(blue "$version")" && white "CPU架构 :         $(blue "$cpu")" && white "虚拟化类型:       $(blue "$vi")"
 white "$status"
 echo
