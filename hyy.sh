@@ -239,7 +239,7 @@ echo ${url} > /root/HY/URL.txt
 green "hysteria代理服务安装完成"
 green "v2rayn客户端配置文件保存到 /root/HY/v2rayn.json"
 green "分享链接保存到 /root/HY/URL.txt"
-green "分享链接: ${url}"
+green "${url}"
 }
 
 unins(){
@@ -274,7 +274,7 @@ systemctl restart hysteria-server
 blue "hysteria代理服务的协议已由$noprotocol更换为$hysteria_protocol"
 green "v2rayn客户端配置文件已更新，保存到 /root/HY/v2rayn.json"
 green "分享链接已更新，保存到 /root/HY/URL.txt"
-green "分享链接已更新: $(cat /root/HY/URL.txt)"
+green "$(cat /root/HY/URL.txt)"
 }
 
 changeip(){
