@@ -100,9 +100,13 @@ fi
 inshy(){
 systemctl stop hysteria-server >/dev/null 2>&1
 systemctl disable hysteria-server >/dev/null 2>&1
-rm -rf /usr/local/bin/hysteria
-rm -rf /etc/hysteria
+rm -rf /usr/local/bin/hysteria /etc/hysteria /root/HY
 wget -N https://raw.githubusercontent.com/rkygogo/hysteria/master/install_server.sh && bash install_server.sh
+if [[ -f '/usr/local/bin/hysteria' ]]; then
+green "成功安装hysteria版本：$(/usr/local/bin/hysteria -v | awk 'NR==1 {print $3}')\n"
+else
+red "安装hysteria失败" && exit
+fi
 }
 
 inscertificate(){
@@ -112,6 +116,7 @@ if [ -z "${certificate}" ] || [ $certificate == "1" ];then
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=www.bing.com"
 ym=www.bing.com
+blue "证书模式: 自签证书\n"
 chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
 elif [ $protocol == "2" ];then
 wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
@@ -133,7 +138,7 @@ hysteria_protocol="faketcp"
 else 
 red "输入错误，请重新选择" && inspr
 fi
-green "传输协议: ${hysteria_protocol}\n"
+blue "传输协议: ${hysteria_protocol}\n"
 }
 
 insport(){
@@ -228,6 +233,7 @@ EOF
 }
 
 over(){
+mkdir -p /root/HY
 url="hysteria://${ymip}:${port}?protocol=${hysteria_protocol}&auth=${pswd}&peer=${ym}&insecure=${ins}&upmbps=1000&downmbps=1000&alpn=h3#HY-${ymip}"
 echo ${url} > /root/HY/URL.txt
 green "hysteria代理服务安装完成"
@@ -240,7 +246,7 @@ unins(){
 systemctl stop hysteria-server.service >/dev/null 2>&1
 systemctl disable hysteria-server.service >/dev/null 2>&1
 rm -f /lib/systemd/system/hysteria-server.service /lib/systemd/system/hysteria-server@.service
-rm -rf /usr/local/bin/hysteria /etc/hysteria /usr/bin/hy
+rm -rf /usr/local/bin/hysteria /etc/hysteria /root/HY /usr/bin/hy
 
 green "hysteria卸载完成！"
 }
