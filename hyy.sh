@@ -276,10 +276,10 @@ sed -i "s/$noprotocol/$hysteria_protocol/g" /etc/hysteria/config.json
 sed -i "s/$noprotocol/$hysteria_protocol/g" /root/HY/v2rayn.json
 sed -i "s/$noprotocol/$hysteria_protocol/g" /root/HY/URL.txt
 systemctl restart hysteria-server
-green "hysteria代理服务已更新完成"
+green "hysteria代理服务的协议已由$noprotocol更换为$hysteria_protocol"
 green "v2rayn客户端配置文件已更新，保存到 /root/HY/v2rayn.json"
 green "分享链接已更新，保存到 /root/HY/URL.txt"
-green "分享链接已更新: cat /root/HY/URL.txt"
+green "分享链接已更新: $(cat /root/HY/URL.txt)"
 }
 
 changeip(){
