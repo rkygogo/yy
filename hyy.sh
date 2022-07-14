@@ -118,10 +118,10 @@ readp "1. www.bing.com自签证书（回车默认）\n2. ACME一键申请证书\
 if [ -z "${certificate}" ] || [ $certificate == "1" ];then
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=www.bing.com"
+chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
 ym=www.bing.com
 blue "已确认证书模式: 自签证书\n"
-chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
-elif [ $protocol == "2" ];then
+elif [ $certificate == "2" ];then
 wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
 chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
 else 
