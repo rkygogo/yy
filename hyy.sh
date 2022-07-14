@@ -264,7 +264,7 @@ fi
 
 changepr(){
 noprotocol=`cat /etc/hysteria/config.json 2>/dev/null | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
-green "当前使用协议为：$noprotocol"
+blue "当前使用协议为：$noprotocol"
 echo
 inspr
 sed -i "s/$noprotocol/$hysteria_protocol/g" /etc/hysteria/config.json
