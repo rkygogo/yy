@@ -105,46 +105,35 @@ rm -rf /etc/hysteria
 wget -N https://raw.githubusercontent.com/rkygogo/hysteria/master/install_server.sh && bash install_server.sh
 }
 
-inskey(){
-green "hysteria证书申请方式选择如下:"
-yellow "1. www.bing.com自签证书"
-yellow "2. ACME一键申请证书"
-yellow "0. 返回上一层"
-readp "选择证书申请方式: " ca
-case ${ca} in
-1)
+inscertificate(){
+green "hysteria协议证书申请方式选择如下:"
+readp "1. www.bing.com自签证书（回车默认）\n2. ACME一键申请证书\n 请选择：" certificate
+if [ -z "${certificate}" ] || [ $certificate == "1" ];then
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=www.bing.com"
 ym=www.bing.com
 chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
-echo;;
-2)
+elif [ $protocol == "2" ];then
 wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
 chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
-echo;;
-0)
-start_menu;;
-*)
-red "输入错误，请重新选择" && inskey
-esac
+else 
+red "输入错误，请重新选择" && inscertificate
+fi
 }
 
 inspr(){
 green "hysteria的协议选择如下:"
-yellow "1. udp"
-yellow "2. wechat-video"
-yellow "3. faketcp"
-readp "选择hysteria的协议: " Protocol
-case ${Protocol} in
-1)
-hysteria_protocol="udp";;
-2)
-hysteria_protocol="wechat-video";;
-3)
-hysteria_protocol="faketcp";;
-*)
+readp "1. udp(回车默认)\n2. wechat-video\n3. faketcp\n 请选择：" Protocol
+if [ -z "${protocol}" ] || [ $protocol == "1" ];then
+hysteria_protocol="udp"
+elif [ $protocol == "2" ];then
+hysteria_protocol="wechat-video"
+elif [ $protocol == "3" ];then
+hysteria_protocol="faketcp"
+else 
 red "输入错误，请重新选择" && inspr
-esac
+fi
+green "传输协议: ${hysteria_protocol}\n"
 }
 
 insport(){
@@ -164,7 +153,7 @@ fi
 blue "已确认登录端口：$port"
 }
 
-insobfs(){
+inspswd(){
 readp "设置hysteria验证密码（回车跳过为随机6位字符）：" pswd
 if [[ -z ${pswd} ]]; then
 pswd=`date +%s%N |md5sum | cut -c 1-6`
@@ -307,7 +296,7 @@ systemctl restart hysteria-server
 }
 
 inshysteria(){
-start ; inshy ; inskey ; inspr ; insport ; insobfs
+start ; inshy ; inscertificate ; inspr ; insport ; inspswd
 if [[ ! $vi =~ lxc|openvz ]]; then
 sysctl -w net.core.rmem_max=4000000
 sysctl -p
