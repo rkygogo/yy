@@ -295,12 +295,12 @@ rrpip="46"
 elif [[ $rrpip == "2" && -n $ipv6 ]];then
 rrpip="64"
 else 
-red "无当前IP优先或者输入错误" && changeip
+red "无当前IPV4/IPV6优先选择或者输入错误" && changeip
 fi
 rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
 sed -i "4s/$rpip/$rrpip/g" /etc/hysteria/config.json
 systemctl restart hysteria-server
-[[ $rrpip = 46 ]] && v4v6="IPV4优先：$(curl -s4 ip.gs)" || v4v6="IPV6优先：$(curl -s6 ip.gs)"
+[[ $rrpip = 46 ]] && v4v6="IPV4优先：$(curl -s4 ip.gs -k)" || v4v6="IPV6优先：$(curl -s6 ip.gs -k)"
 blue "确定当前已更换的IP优先级：${v4v6}\n"
 }
 
@@ -326,7 +326,7 @@ wgcfv4=$(curl -s4m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cu
 if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) ]]; then
 noprotocol=`cat /etc/hysteria/config.json 2>/dev/null | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
 rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
-[[ $rpip = 64 ]] && v4v6="IPV6优先：$(curl -s6 ip.gs)" || v4v6="IPV4优先：$(curl -s4 ip.gs)"
+[[ $rpip = 64 ]] && v4v6="IPV6优先：$(curl -s6 ip.gs -k)" || v4v6="IPV4优先：$(curl -s4 ip.gs -k)"
 status=$(white "hysteria运行状态：\c";green "运行中";white "hysteria运行协议：\c";green "$noprotocol";white "当前优先出站IP：  \c";green "$v4v6";white "WARP运行状态：    \c";eval echo \$wgcf)
 else
 status=$(white "hysteria运行状态：\c";red "未启动";white "WARP运行状态：    \c";eval echo \$wgcf)
