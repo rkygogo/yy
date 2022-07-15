@@ -1,4 +1,6 @@
 #!/bin/bash
+hyygV="22.7.15 V 1.0"
+remoteV=`wget -qO- https://gitlab.com/rwkgyg/x-ui-yg/raw/main/install.sh | sed  -n 2p | cut -d '"' -f 2`
 red='\033[0;31m'
 bblue='\033[0;34m'
 plain='\033[0m'
@@ -110,6 +112,7 @@ blue "成功安装hysteria版本：$(/usr/local/bin/hysteria -v | awk 'NR==1 {pr
 else
 red "安装hysteria失败" && exit
 fi
+rm -rf install_server.sh
 }
 
 inscertificate(){
@@ -262,7 +265,7 @@ unins(){
 systemctl stop hysteria-server.service >/dev/null 2>&1
 systemctl disable hysteria-server.service >/dev/null 2>&1
 rm -f /lib/systemd/system/hysteria-server.service /lib/systemd/system/hysteria-server@.service
-rm -rf /usr/local/bin/hysteria /etc/hysteria /root/HY /usr/bin/hy
+rm -rf /usr/local/bin/hysteria /etc/hysteria /root/HY /root/install_server.sh /usr/bin/hy
 
 green "hysteria卸载完成！"
 }
@@ -274,7 +277,13 @@ fi
 wget -N https://raw.githubusercontent.com/HyNetwork/hysteria/master/install_server.sh && bash install_server.sh
 systemctl restart hysteria-server >/dev/null 2>&1
 VERSION="$(/usr/local/bin/hysteria -v | awk 'NR==1 {print $3}')"
-green "当前hysteria内核版本号：$VERSION"
+blue "当前hysteria内核版本号：$VERSION"
+}
+
+uphyyg(){
+
+chmod +x /root/hyy.sh 
+ln -sf /root/hyy.sh /usr/bin/hy
 }
 
 changepr(){
@@ -360,18 +369,32 @@ green "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 white "甬哥Gitlab项目  ：gitlab.com/rwkgyg"
 white "甬哥blogger博客 ：ygkkk.blogspot.com"
 white "甬哥YouTube频道 ：www.youtube.com/c/甬哥侃侃侃kkkyg"
-yellow "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-blue " WARP-WGCF/SOCKS5安装脚本：2022.3.24更新 Beta 8 版本"  
-yellow " 切记：安装WARP成功后，进入脚本快捷方式：cf  其他说明：cf h"
 white " ========================================================================================"
-green "  1. 安装hysteria"      
-green "  2. 修改当前协议类型"      
-green "  3. 更新脚本"  
-green "  4. 更新hysteria内核"
-green "  5. 切换IPV4/IPV6出站优先级" 
-green "  6. 卸载hysteria"
-green "  0. 退出脚本 "
+green " 1. 安装hysteria"      
+green " 2. 修改当前协议类型"      
+green " 3. 更新脚本"  
+green " 4. 更新hysteria内核"
+green " 5. 切换IPV4/IPV6出站优先级" 
+green " 6. 卸载hysteria"
+green " 0. 退出脚本 "
 red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+if [ -f '/usr/local/bin/hysteria' ]; then
+if [ "${hyygV}" = "${remoteV}" ]; then
+green "已安装最新脚本：${hyygV} ，如有更新，此处会自动提示"
+else
+green "当前安装的脚本：${hyygV}"
+yellow "检测到最新脚本：${remoteV} ，可选择3进行更新！"
+fi
+loVERSION="$(/usr/local/bin/hysteria -v | awk 'NR==1 {print $3}')"
+hyVERSION="v$(curl -Ls "https://data.jsdelivr.com/v1/package/resolve/gh/HyNetwork/Hysteria" | grep '"version":' | sed -E 's/.*"([^"]+)".*/\1/')"
+if [ "${loVERSION}" = "${hyVERSION}" ]
+green "hysteria内核版本号：${loVERSION} ，如有更新，此处会自动提示"
+else
+green "当前安装的脚本：${loVERSION}"
+yellow "检测到最新脚本：${hyVERSION} ，可选择4进行更新！"
+fi
+fi
+echo
 white "VPS系统信息如下："
 white "操作系统:         $(blue "$op")" && white "内核版本:         $(blue "$version")" && white "CPU架构 :         $(blue "$cpu")" && white "虚拟化类型:       $(blue "$vi")"
 white "$status"
@@ -380,7 +403,7 @@ readp "请输入数字:" Input
 case "$Input" in     
  1 ) inshysteria;;
  2 ) changepr;;
- 3 ) ;;
+ 3 ) uphyyg;;
  4 ) uphysteriacore;; 
  5 ) changeip;;
  6 ) unins;;	
