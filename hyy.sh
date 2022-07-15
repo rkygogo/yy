@@ -286,8 +286,8 @@ changeip(){
 if [ ! -f "/etc/hysteria/config.json" ]; then
 red "未正常安装hysteria!" && exit
 fi
-ip6=$(curl -s6m5 ip.gs -k) 
-ip4=$(curl -s4m5 ip.gs -k)
+ipv6=$(curl -s6m5 ip.gs -k) 
+ipv4=$(curl -s4m5 ip.gs -k)
 green "切换IPV4/IPV6出站优先级选择如下:"
 readp "1. IPV4优先\n2. IPV6优先\n请选择：" rrpip
 if [[ $rrpip == "1" && -n $ipv4 ]];then
