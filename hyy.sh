@@ -288,27 +288,18 @@ red "未正常安装hysteria!" && exit
 fi
 ip6=$(curl -s6m5 ip.gs -k) 
 ip4=$(curl -s4m5 ip.gs -k)
-if [[ -z $ipv4 || -z $ipv6 ]]; then
-red "经检测，当前VPS非双栈，只有双栈VPS才支持IPV4/IPV6出站优先级切换" && exit
-fi
 green "切换IPV4/IPV6出站优先级选择如下:"
-yellow "1. IPV4优先"
-yellow "2. IPV6优先"
-yellow "0. 返回上层"
-readp "请选择: " rrpip
-case ${rrpip} in
-1)
-rrpip="46";;
-2)
-rrpip="64";;
-0)
-start_menu;;
-*)
+readp "1. IPV4优先\n2. IPV6优先\n请选择：" rrpip
+if [[ $rrpip == "1" && -n $ipv4 ]];then
+rrpip="46"
+elif [[ $rrpip == "2" && -n $ipv6 ]];then
+rrpip="64"
+else 
 red "输入错误，请重新选择" && changeip
-esac
+fi
 sed -i "4s/$rpip/$rrpip/g" /etc/hysteria/config.json
 systemctl restart hysteria-server
-blue "确定当前已更换的IP优先级：${rrpip}"
+blue "确定当前已更换的IP优先级：${rrpip}\n"
 }
 
 inshysteria(){
