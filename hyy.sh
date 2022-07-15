@@ -113,7 +113,7 @@ fi
 }
 
 inscertificate(){
-green "hysteria协议证书申请方式选择如下:"
+green "一、hysteria协议证书申请方式选择如下:"
 readp "1. www.bing.com自签证书（回车默认）\n2. ACME一键申请证书\n请选择：" certificate
 if [ -z "${certificate}" ] || [ $certificate == "1" ];then
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
@@ -130,7 +130,7 @@ fi
 }
 
 inspr(){
-green "hysteria的传输协议选择如下:"
+green "二、hysteria的传输协议选择如下:"
 readp "1. udp(回车默认)\n2. wechat-video\n3. faketcp\n请选择：" protocol
 if [ -z "${protocol}" ] || [ $protocol == "1" ];then
 hysteria_protocol="udp"
@@ -145,7 +145,7 @@ blue "已确认传输协议: ${hysteria_protocol}\n"
 }
 
 insport(){
-readp "设置hysteria端口[1-65535]（回车跳过为2000-65535之间的随机端口）：" port
+readp "三、hysteria端口设置[1-65535]（回车跳过为2000-65535之间的随机端口）：" port
 if [[ -z $port ]]; then
 port=$(shuf -i 2000-65535 -n 1)
 until [[ -z $(ss -ntlp | awk '{print $4}' | grep -w "$port") ]]
@@ -162,7 +162,7 @@ blue "已确认端口：$port\n"
 }
 
 inspswd(){
-readp "设置hysteria验证密码（回车跳过为随机6位字符）：" pswd
+readp "四、hysteria设置验证密码（回车跳过为随机6位字符）：" pswd
 if [[ -z ${pswd} ]]; then
 pswd=`date +%s%N |md5sum | cut -c 1-6`
 fi
@@ -176,6 +176,7 @@ blue "已确认验证密码：${pswd}\n"
 }
 
 insconfig(){
+green "五、设置配置文件中，稍等5秒"
 mkdir -p /root/HY
 v4=$(curl -s4m5 ip.gs -k)
 [[ -z $v4 ]] && rpip=64 || rpip=46
@@ -210,6 +211,7 @@ sureipadress
 else
 systemctl stop wg-quick@wgcf >/dev/null 2>&1
 sureipadress
+systemctl start wg-quick@wgcf >/dev/null 2>&1
 fi
 
 if [[ $ym = www.bing.com ]]; then
@@ -250,10 +252,10 @@ EOF
 over(){
 url="hysteria://${ymip}:${port}?protocol=${hysteria_protocol}&auth=${pswd}&peer=${ym}&insecure=${ins}&upmbps=1000&downmbps=1000&alpn=h3#HY-${ymip}"
 echo ${url} > /root/HY/URL.txt
-green "hysteria代理服务安装完成"
-green "v2rayn客户端配置文件保存到 /root/HY/v2rayn.json"
-green "分享链接保存到 /root/HY/URL.txt"
-green "${url}"
+green "六、hysteria代理服务安装完成"
+blue "v2rayn客户端配置文件保存到 /root/HY/v2rayn.json"
+blue "分享链接保存到 /root/HY/URL.txt"
+yellow "${url}"
 }
 
 unins(){
