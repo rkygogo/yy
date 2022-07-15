@@ -196,9 +196,20 @@ cat <<EOF > /etc/hysteria/config.json
 }
 EOF
 
-ip=$(curl -s6m5 ip.sb -k) || ip=$(curl -s4m5 ip.sb -k)
+sureipadress(){
+ip=$(curl -s6m5 ip.gs -k) || ip=$(curl -s4m5 ip.gs -k)
 if [[ -n $(echo $ip | grep ":") ]]; then
 ip="[$ip]"
+fi
+}
+
+wgcfv6=$(curl -s6m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
+wgcfv4=$(curl -s4m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
+if [[ ! $wgcfv4 =~ on|plus && ! $wgcfv6 =~ on|plus ]]; then
+sureipadress
+else
+systemctl stop wg-quick@wgcf >/dev/null 2>&1
+sureipadress
 fi
 
 if [[ $ym = www.bing.com ]]; then
