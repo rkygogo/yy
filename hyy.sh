@@ -295,7 +295,7 @@ rrpip="46"
 elif [[ $rrpip == "2" && -n $ipv6 ]];then
 rrpip="64"
 else 
-red "输入错误，请重新选择" && changeip
+red "无当前IP优先或者输入错误，请重新选择" && changeip
 fi
 sed -i "4s/$rpip/$rrpip/g" /etc/hysteria/config.json
 systemctl restart hysteria-server
