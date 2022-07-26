@@ -376,7 +376,7 @@ if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -
 red "未正常安装hysteria!" && exit
 fi
 certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print $2}' | awk -F '"' '{ print $2}'`
-if [[ $certificate =~ ect ]]; then
+if [[ $certificate = '/etc/hysteria/cert.crt' ]]; then
 certificatepp='/etc/hysteria/private.key'
 certificatecc='/etc/hysteria/cert.crt'
 blue "当前正在使用的证书：自签bing证书"
