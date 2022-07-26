@@ -163,6 +163,7 @@ certificatec='/root/cert.crt'
 else
 red "证书申请未成功或者证书不存在" && inscertificate
 fi
+fi
 else 
 red "输入错误，请重新选择" && inscertificate
 fi
