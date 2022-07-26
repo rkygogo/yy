@@ -148,6 +148,12 @@ certificatep='/etc/hysteria/private.key'
 certificatec='/etc/hysteria/cert.crt'
 blue "已确认证书模式: www.bing.com自签证书\n"
 elif [ $certificate == "2" ];then
+if [[ -f /root/cert.crt && -f /root/private.key ]] && [[ -s /root/cert.crt && -s /root/private.key ]]; then
+chmod +755 /root/private.key /root/cert.crt
+certificatep='/root/private.key'
+certificatec='/root/cert.crt'
+blue "之前证书已申请，已直接引用\n"
+else
 wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
 # wget -N https://gitlab.com/rwkgyg/acme-script/raw/main/acme.sh && bash acme.sh
 if [[ -f /root/private.key && -f /root/cert.crt ]]; then
