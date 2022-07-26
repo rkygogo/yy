@@ -144,13 +144,18 @@ openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=www.bing.com"
 chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
 ym=www.bing.com
+certificatep='/etc/hysteria/private.key'
+certificatec='/etc/hysteria/cert.crt'
 blue "已确认证书模式: www.bing.com自签证书\n"
 elif [ $certificate == "2" ];then
-wget -N https://gitlab.com/rwkgyg/acme-script/raw/main/acme.sh && bash acme.sh
-if [[ -f '/etc/hysteria/private.key' ]]; then
-chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
+wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
+# wget -N https://gitlab.com/rwkgyg/acme-script/raw/main/acme.sh && bash acme.sh
+if [[ -f /root/private.key && -f /root/cert.crt ]]; then
+chmod +755 /root/private.key /root/cert.crt
+certificatep='/root/private.key'
+certificatec='/root/cert.crt'
 else
-red "证书申请未成功" && inscertificate
+red "证书申请未成功或者证书不存在" && inscertificate
 fi
 else 
 red "输入错误，请重新选择" && inscertificate
@@ -221,8 +226,8 @@ cat <<EOF > /etc/hysteria/config.json
 }
 },
 "alpn": "h3",
-"cert": "/etc/hysteria/cert.crt",
-"key": "/etc/hysteria/private.key"
+"cert": "${certificatec}",
+"key": "${certificatep}"
 }
 EOF
 
@@ -366,6 +371,28 @@ green "分享链接已更新，保存到 /root/HY/URL.txt"
 yellow "$(cat /root/HY/URL.txt)"
 }
 
+changecertificate(){
+if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -f '/etc/hysteria/config.json' ]]; then
+red "未正常安装hysteria!" && exit
+fi
+certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print $2}' | awk -F '"' '{ print $2}'`
+if [[ $certificate =~ ect ]]; then
+certificatepp='/etc/hysteria/private.key'
+certificatecc='/etc/hysteria/cert.crt'
+blue "当前正在使用的证书：自签bing证书"
+else
+certificatepp='/root/private.key'
+certificatecc='/root/cert.crt'
+blue "当前正在使用的证书：acme申请的证书"
+fi
+echo
+inscertificate
+sed -i "s/$certificatepp/$certificatep/g" /etc/hysteria/config.json
+sed -i "s/$certificatecc/$certificatec/g" /etc/hysteria/config.json
+systemctl restart hysteria-server
+}
+
+
 changeip(){
 if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -f '/etc/hysteria/config.json' ]]; then
 red "未正常安装hysteria!" && exit
@@ -460,25 +487,26 @@ white "甬哥blogger博客 ：ygkkk.blogspot.com"
 white "甬哥YouTube频道 ：www.youtube.com/c/甬哥侃侃侃kkkyg"
 green "hysteria-yg脚本安装成功后，再次进入脚本的快捷方式为 hy"
 red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-green " 1. 安装hysteria（必选）"      
-green " 2. 修改当前协议类型" 
-green " 3. 切换IPV4/IPV6出站优先级" 
-green " 4. 关闭、开启、重启hysteria"   
-green " 5. 更新hysteria-yg安装脚本"  
-green " 6. 更新hysteria内核"
-green " 7. 卸载hysteria"
+green "  1. 安装hysteria（必选）"      
+green "  2. 更换当前协议类型" 
+green "  3. 切换IPV4/IPV6出站优先级"
+green "  4. 更换当前证书类型"
+green "  5. 关闭、开启、重启hysteria"   
+green "  6. 更新hysteria-yg安装脚本"  
+green "  7. 更新hysteria内核"
+green "  8. 卸载hysteria"
 white "----------------------------------------------------------------------------------"
-green " 8. 显示hysteria分享链接与V2rayN配置文件"
-green " 9. 安装warp（可选）"
-green " 10. 安装BBR+FQ加速（可选）"
-green " 0. 退出脚本"
+green "  9. 显示hysteria分享链接与V2rayN配置文件"
+green " 10. 安装warp（可选）"
+green " 11. 安装BBR+FQ加速（可选）"
+green "  0. 退出脚本"
 red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) && -f '/etc/hysteria/config.json' ]]; then
 if [ "${hyygV}" = "${remoteV}" ]; then
 green "当前hysteria-yg安装脚本版本号：${hyygV} ，已是最新版本\n"
 else
 green "当前hysteria-yg安装脚本版本号：${hyygV}"
-yellow "检测到最新hysteria-yg安装脚本版本号：${remoteV} ，可选择5进行更新\n"
+yellow "检测到最新hysteria-yg安装脚本版本号：${remoteV} ，可选择6进行更新\n"
 fi
 loVERSION="$(/usr/local/bin/hysteria -v | awk 'NR==1 {print $3}')"
 hyVERSION="v$(curl -Ls "https://data.jsdelivr.com/v1/package/resolve/gh/HyNetwork/Hysteria" | grep '"version":' | sed -E 's/.*"([^"]+)".*/\1/')"
@@ -486,7 +514,7 @@ if [ "${loVERSION}" = "${hyVERSION}" ]; then
 green "当前hysteria内核版本号：${loVERSION} ，已是最新版本\n"
 else
 green "当前hysteria内核版本号：${loVERSION}"
-yellow "检测到最新hysteria内核版本号：${hyVERSION} ，可选择6进行更新\n"
+yellow "检测到最新hysteria内核版本号：${hyVERSION} ，可选择7进行更新\n"
 fi
 fi
 white "VPS系统信息如下："
@@ -498,13 +526,14 @@ case "$Input" in
  1 ) inshysteria;;
  2 ) changepr;;
  3 ) changeip;;
- 4 ) stclre;;
- 5 ) uphyyg;; 
- 6 ) uphysteriacore;;
- 7 ) unins;;
- 8 ) hysteriashare;;
- 9 ) cfwarp;;
- 10 ) bbr;;	
+ 4 ) changecertificate
+ 5 ) stclre;;
+ 6 ) uphyyg;; 
+ 7 ) uphysteriacore;;
+ 8 ) unins;;
+ 9 ) hysteriashare;;
+10 ) cfwarp;;
+11 ) bbr;;	
  * ) exit 
 esac
 }
