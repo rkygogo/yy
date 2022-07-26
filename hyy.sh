@@ -487,14 +487,15 @@ white "甬哥blogger博客 ：ygkkk.blogspot.com"
 white "甬哥YouTube频道 ：www.youtube.com/c/甬哥侃侃侃kkkyg"
 green "hysteria-yg脚本安装成功后，再次进入脚本的快捷方式为 hy"
 red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-green "  1. 安装hysteria（必选）"      
-green "  2. 更换当前协议类型" 
-green "  3. 切换IPV4/IPV6出站优先级"
-green "  4. 更换当前证书类型"
-green "  5. 关闭、开启、重启hysteria"   
-green "  6. 更新hysteria-yg安装脚本"  
-green "  7. 更新hysteria内核"
-green "  8. 卸载hysteria"
+green "  1. 安装hysteria（必选）" 
+green "  2. 卸载hysteria"
+white "----------------------------------------------------------------------------------"
+green "  3. 更换当前协议类型" 
+green "  4. 切换IPV4/IPV6出站优先级"
+green "  5. 更换当前证书类型"
+green "  6. 关闭、开启、重启hysteria"   
+green "  7. 更新hysteria-yg安装脚本"  
+green "  8. 更新hysteria内核"
 white "----------------------------------------------------------------------------------"
 green "  9. 显示hysteria分享链接与V2rayN配置文件"
 green " 10. 安装warp（可选）"
@@ -524,13 +525,13 @@ echo
 readp "请输入数字:" Input
 case "$Input" in     
  1 ) inshysteria;;
- 2 ) changepr;;
- 3 ) changeip;;
- 4 ) changecertificate;;
- 5 ) stclre;;
- 6 ) uphyyg;; 
- 7 ) uphysteriacore;;
- 8 ) unins;;
+ 2 ) unins;;
+ 3 ) changepr;;
+ 4 ) changeip;;
+ 5 ) changecertificate;;
+ 6 ) stclre;;
+ 7 ) uphyyg;; 
+ 8 ) uphysteriacore;;
  9 ) hysteriashare;;
 10 ) cfwarp;;
 11 ) bbr;;	
@@ -541,4 +542,3 @@ if [ $# == 0 ]; then
 start
 start_menu
 fi
-
