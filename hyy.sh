@@ -1,6 +1,6 @@
 #!/bin/bash
-hyygV="22.7.15 V 1.0"
-remoteV=`wget -qO- https://gitlab.com/rwkgyg/x-ui-yg/raw/main/install.sh | sed  -n 2p | cut -d '"' -f 2`
+hyygV="22.7.23 V 1.8"
+remoteV=`wget -qO- https://gitlab.com/rwkgyg/hysteria-yg/raw/main/hysteria.sh | sed  -n 2p | cut -d '"' -f 2`
 red='\033[0;31m'
 bblue='\033[0;34m'
 plain='\033[0m'
@@ -42,12 +42,20 @@ bit=`uname -m`
 [[ $bit = x86_64 ]] && cpu=AMD64
 [[ $bit = aarch64 ]] && cpu=ARM64
 vi=`systemd-detect-virt`
+ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 start(){
+if [[ -n $(sysctl net.ipv4.tcp_congestion_control 2>/dev/null | awk -F ' ' '{print $3}') ]]; then
+bbr=`sysctl net.ipv4.tcp_congestion_control | awk -F ' ' '{print $3}'`
+elif [[ -n $(ping 10.0.0.2 -c 2 | grep ttl) ]]; then
+bbr="openvz版bbr-plus"
+else
+bbr="暂不支持显示"
+fi
 if [[ $vi = openvz ]]; then
 TUN=$(cat /dev/net/tun 2>&1)
 if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then 
-red "检测到未开启TUN，现尝试添加TUN支持" && sleep 4
+red "检测到未开启TUN，现尝试添加TUN支持" && sleep 2
 cd /dev
 mkdir net
 mknod net/tun c 10 200
@@ -56,7 +64,7 @@ TUN=$(cat /dev/net/tun 2>&1)
 if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then 
 green "添加TUN支持失败，建议与VPS厂商沟通或后台设置开启" && exit 0
 else
-green "恭喜，添加TUN支持成功，现添加防止重启VPS后TUN失效的TUN守护功能" && sleep 4
+green "恭喜，添加TUN支持成功，现添加TUN守护功能" && sleep 4
 cat>/root/tun.sh<<-\EOF
 #!/bin/bash
 cd /dev
@@ -70,15 +78,16 @@ green "TUN守护功能已启动"
 fi
 fi
 fi
-[[ $(type -P yum) ]] && yumapt='yum -y' || yumapt='apt -y'
-[[ $(type -P curl) ]] || (yellow "检测到curl未安装，升级安装中" && $yumapt update;$yumapt install curl)
-[[ $(type -P lsof) ]] || (yellow "检测到lsof未安装，升级安装中" && $yumapt update;$yumapt install lsof)
 if [[ -z $(grep 'DiG 9' /etc/hosts) ]]; then
-v4=$(curl -s4m5 https://ip.gs -k)
+v4=$(curl -s4m5 ip.gs -k)
 if [ -z $v4 ]; then
 echo -e nameserver 2a01:4f8:c2c:123f::1 > /etc/resolv.conf
 fi
 fi
+[[ $(type -P yum) ]] && yumapt='yum -y' || yumapt='apt -y'
+[[ $(type -P curl) ]] || (yellow "检测到curl未安装，升级安装中" && $yumapt update;$yumapt install curl)
+[[ $(type -P lsof) ]] || (yellow "检测到lsof未安装，升级安装中" && $yumapt update;$yumapt install lsof)
+[[ ! $(type -P python3) ]] && (yellow "检测到python3未安装，升级安装中" && $yumapt update;$yumapt install python3)
 systemctl stop firewalld.service >/dev/null 2>&1
 systemctl disable firewalld.service >/dev/null 2>&1
 setenforce 0 >/dev/null 2>&1
@@ -100,13 +109,25 @@ fi
 }
 
 inshy(){
-if [[ -f '/usr/local/bin/hysteria' ]]; then
+if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) && -f '/etc/hysteria/config.json' ]]; then
 green "已安装hysteria，重装请先执行卸载功能" && exit
+fi
+if [[ $release = Centos ]]; then
+if [[ ${vsid} =~ 8 ]]; then
+cd /etc/yum.repos.d/ && mkdir backup && mv *repo backup/ 
+curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-8.repo
+sed -i -e "s|mirrors.cloud.aliyuncs.com|mirrors.aliyun.com|g " /etc/yum.repos.d/CentOS-*
+sed -i -e "s|releasever|releasever-stream|g" /etc/yum.repos.d/CentOS-*
+yum clean all && yum makecache
+fi
+yum install epel-release -y
+else
+$yumapt update
 fi
 systemctl stop hysteria-server >/dev/null 2>&1
 systemctl disable hysteria-server >/dev/null 2>&1
 rm -rf /usr/local/bin/hysteria /etc/hysteria /root/HY
-wget -N https://raw.githubusercontent.com/rkygogo/hysteria/master/install_server.sh && bash install_server.sh
+wget -N https://gitlab.com/rwkgyg/hysteria-yg/raw/main/install_server.sh && bash install_server.sh
 if [[ -f '/usr/local/bin/hysteria' ]]; then
 blue "成功安装hysteria版本：$(/usr/local/bin/hysteria -v | awk 'NR==1 {print $3}')\n"
 else
@@ -117,7 +138,7 @@ rm -rf install_server.sh
 
 inscertificate(){
 green "一、hysteria协议证书申请方式选择如下:"
-readp "1. www.bing.com自签证书（回车默认）\n2. ACME一键申请证书\n请选择：" certificate
+readp "1. www.bing.com自签证书（回车默认）\n2. acme一键申请证书（支持常规80端口模式与dns api模式）\n请选择：" certificate
 if [ -z "${certificate}" ] || [ $certificate == "1" ];then
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=www.bing.com"
@@ -125,8 +146,12 @@ chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
 ym=www.bing.com
 blue "已确认证书模式: www.bing.com自签证书\n"
 elif [ $certificate == "2" ];then
-wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
+wget -N https://gitlab.com/rwkgyg/acme-script/raw/main/acme.sh && bash acme.sh
+if [[ -f '/etc/hysteria/private.key' ]]; then
 chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
+else
+red "证书申请未成功" && inscertificate
+fi
 else 
 red "输入错误，请重新选择" && inscertificate
 fi
@@ -134,7 +159,7 @@ fi
 
 inspr(){
 green "二、hysteria的传输协议选择如下:"
-readp "1. udp(回车默认)\n2. wechat-video\n3. faketcp\n请选择：" protocol
+readp "1. udp（回车默认，推荐）\n2. wechat-video（推荐）\n3. faketcp（仅支持linux客户端且需要root权限）\n请选择：" protocol
 if [ -z "${protocol}" ] || [ $protocol == "1" ];then
 hysteria_protocol="udp"
 elif [ $protocol == "2" ];then
@@ -144,6 +169,7 @@ hysteria_protocol="faketcp"
 else 
 red "输入错误，请重新选择" && inspr
 fi
+echo
 blue "已确认传输协议: ${hysteria_protocol}\n"
 }
 
@@ -179,8 +205,8 @@ blue "已确认验证密码：${pswd}\n"
 }
 
 insconfig(){
-green "五、设置配置文件中，稍等5秒"
-mkdir -p /root/HY
+green "五、设置配置文件中……，稍等5秒"
+mkdir -p /root/HY/acl
 v4=$(curl -s4m5 ip.gs -k)
 [[ -z $v4 ]] && rpip=64 || rpip=46
 cat <<EOF > /etc/hysteria/config.json
@@ -224,7 +250,7 @@ ym=$(cat /etc/hysteria/ca.log)
 ymip=$ym;ins=false
 fi
 
-cat <<EOF > /root/HY/v2rayn.json
+cat <<EOF > /root/HY/acl/v2rayn.json
 {
 "server": "${ymip}:${port}",
 "protocol": "${hysteria_protocol}",
@@ -252,26 +278,17 @@ cat <<EOF > /root/HY/v2rayn.json
 EOF
 }
 
-over(){
-url="hysteria://${ymip}:${port}?protocol=${hysteria_protocol}&auth=${pswd}&peer=${ym}&insecure=${ins}&upmbps=1000&downmbps=1000&alpn=h3#HY-${ymip}"
-echo ${url} > /root/HY/URL.txt
-green "六、hysteria代理服务安装完成"
-blue "v2rayn客户端配置文件保存到 /root/HY/v2rayn.json"
-blue "分享链接保存到 /root/HY/URL.txt"
-yellow "${url}"
-}
-
 unins(){
 systemctl stop hysteria-server.service >/dev/null 2>&1
 systemctl disable hysteria-server.service >/dev/null 2>&1
 rm -f /lib/systemd/system/hysteria-server.service /lib/systemd/system/hysteria-server@.service
-rm -rf /usr/local/bin/hysteria /etc/hysteria /root/HY /root/install_server.sh /usr/bin/hy
-
+rm -rf /usr/local/bin/hysteria /etc/hysteria /root/HY /root/install_server.sh /root/hysteria.sh /usr/bin/hy
+sed -i '/systemctl restart hysteria-server/d' /etc/crontab
 green "hysteria卸载完成！"
 }
 
 uphysteriacore(){
-if [ ! -f '/usr/local/bin/hysteria' ]; then
+if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -f '/etc/hysteria/config.json' ]]; then
 red "未正常安装hysteria!" && exit
 fi
 wget -N https://raw.githubusercontent.com/HyNetwork/hysteria/master/install_server.sh && bash install_server.sh
@@ -280,32 +297,77 @@ VERSION="$(/usr/local/bin/hysteria -v | awk 'NR==1 {print $3}')"
 blue "当前hysteria内核版本号：$VERSION"
 }
 
-uphyyg(){
+stclre(){
+if [[ ! -f '/etc/hysteria/config.json' ]]; then
+red "未正常安装hysteria!" && exit
+fi
+green "hysteria服务执行以下操作"
+readp "1. 重启\n2. 关闭\n3. 启动\n请选择：" action
+if [[ $action == "1" ]];then
+systemctl restart hysteria-server
+green "hysteria服务重启成功"
+hysteriastatus
+white "$status\n"
+elif [[ $action == "2" ]];then
+systemctl stop hysteria-server
+systemctl disable hysteria-server
+green "hysteria服务关闭成功"
+hysteriastatus
+white "$status\n"
+elif [[ $action == "3" ]];then
+systemctl enable hysteria-server
+systemctl start hysteria-server
+green "hysteria服务开启成功"
+hysteriastatus
+white "$status\n"
+else
+red "输入错误,请重新选择" && stclre
+fi
+}
 
-chmod +x /root/hyy.sh 
-ln -sf /root/hyy.sh /usr/bin/hy
+uphyyg(){
+if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -f '/etc/hysteria/config.json' ]]; then
+red "未正常安装hysteria!" && exit
+fi
+wget -N https://gitlab.com/rwkgyg/hysteria-yg/raw/main/hysteria.sh
+chmod +x /root/hysteria.sh 
+rm -rf /usr/bin/hy
+ln -sf /root/hysteria.sh /usr/bin/hy
+green "安装脚本升级成功"
+}
+
+cfwarp(){
+wget -N --no-check-certificate https://gitlab.com/rwkgyg/cfwarp/raw/main/CFwarp.sh && bash CFwarp.sh
+
+}
+
+bbr(){
+bash <(curl -L -s https://raw.githubusercontent.com/teddysun/across/master/bbr.sh)
+
 }
 
 changepr(){
-if [ ! -f '/etc/hysteria/config.json' ]; then
+if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -f '/etc/hysteria/config.json' ]]; then
 red "未正常安装hysteria!" && exit
 fi
 noprotocol=`cat /etc/hysteria/config.json 2>/dev/null | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
-blue "当前使用协议：$noprotocol"
+echo
+blue "当前正在使用的协议：$noprotocol"
 echo
 inspr
 sed -i "s/$noprotocol/$hysteria_protocol/g" /etc/hysteria/config.json
-sed -i "s/$noprotocol/$hysteria_protocol/g" /root/HY/v2rayn.json
+sed -i "s/$noprotocol/$hysteria_protocol/g" /root/HY/acl/v2rayn.json
 sed -i "s/$noprotocol/$hysteria_protocol/g" /root/HY/URL.txt
 systemctl restart hysteria-server
 blue "hysteria代理服务的协议已由 $noprotocol 更换为 $hysteria_protocol "
-green "v2rayn客户端配置文件已更新，保存到 /root/HY/v2rayn.json"
+green "v2rayn客户端配置文件已更新，保存到 /root/HY/acl/v2rayn.json\n"
+yellow "$(cat /root/HY/acl/v2rayn.json)\n"
 green "分享链接已更新，保存到 /root/HY/URL.txt"
-green "$(cat /root/HY/URL.txt)"
+yellow "$(cat /root/HY/URL.txt)"
 }
 
 changeip(){
-if [ ! -f "/etc/hysteria/config.json" ]; then
+if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -f '/etc/hysteria/config.json' ]]; then
 red "未正常安装hysteria!" && exit
 fi
 ipv6=$(curl -s6m5 ip.gs -k) 
@@ -317,7 +379,7 @@ rrpip="46"
 elif [[ $rrpip == "2" && -n $ipv6 ]];then
 rrpip="64"
 else 
-red "无当前IPV4/IPV6优先选择或者输入错误" && changeip
+red "无IPV4/IPV6优先选择项或者输入错误" && changeip
 fi
 rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
 sed -i "4s/$rpip/$rrpip/g" /etc/hysteria/config.json
@@ -336,23 +398,50 @@ insconfig
 systemctl enable hysteria-server >/dev/null 2>&1
 systemctl start hysteria-server >/dev/null 2>&1
 systemctl restart hysteria-server >/dev/null 2>&1
+if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) && -f '/etc/hysteria/config.json' ]]; then
+sed -i '/systemctl restart hysteria-server/d' /etc/crontab
+echo "0 4 * * * systemctl restart hysteria-server >/dev/null 2>&1" >> /etc/crontab
+chmod +x /root/hysteria.sh 
+ln -sf /root/hysteria.sh /usr/bin/hy
+wget -NP /root/HY https://gitlab.com/rwkgyg/hysteria-yg/raw/main/GetRoutes.py 
+python3 /root/HY/GetRoutes.py
+mv -f Country.mmdb routes.acl /root/HY/acl
 hysteriastatus
 white "$status\n"
-over
+url="hysteria://${ymip}:${port}?protocol=${hysteria_protocol}&auth=${pswd}&peer=${ym}&insecure=${ins}&upmbps=1000&downmbps=1000&alpn=h3#HY-${ymip}"
+echo ${url} > /root/HY/URL.txt
+green "六、hysteria代理服务安装完成，生成脚本的快捷方式为 hy"
+blue "v2rayn客户端配置文件v2rayn.json及代理规则文件保存到 /root/HY/acl\n"
+yellow "$(cat /root/HY/acl/v2rayn.json)\n"
+blue "分享链接保存到 /root/HY/URL.txt"
+yellow "${url}"
+else
+red "hysteria代理服务安装失败，请运行 systemctl status hysteria-server 查看服务日志" && exit
+fi
 }
 
 hysteriastatus(){
 wgcfv6=$(curl -s6m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2) 
 wgcfv4=$(curl -s4m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
 [[ ! $wgcfv4 =~ on|plus && ! $wgcfv6 =~ on|plus ]] && wgcf=$(green "未启用") || wgcf=$(green "启用中")
-if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) ]]; then
+if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) && -f '/etc/hysteria/config.json' ]]; then
 noprotocol=`cat /etc/hysteria/config.json 2>/dev/null | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
 rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
 [[ $rpip = 64 ]] && v4v6="IPV6优先：$(curl -s6 ip.gs -k)" || v4v6="IPV4优先：$(curl -s4 ip.gs -k)"
-status=$(white "hysteria运行状态：\c";green "运行中";white "hysteria运行协议：\c";green "$noprotocol";white "当前优先出站IP：  \c";green "$v4v6";white "WARP运行状态：    \c";eval echo \$wgcf)
+status=$(white "hysteria状态：\c";green "运行中";white "hysteria协议：\c";green "$noprotocol";white "优先出站IP：  \c";green "$v4v6";white "WARP状态：    \c";eval echo \$wgcf)
 else
-status=$(white "hysteria运行状态：\c";red "未启动";white "WARP运行状态：    \c";eval echo \$wgcf)
+status=$(white "hysteria状态：\c";red "未启动";white "WARP状态：    \c";eval echo \$wgcf)
 fi
+}
+
+hysteriashare(){
+if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -f '/etc/hysteria/config.json' ]]; then
+red "未正常安装hysteria!" && exit
+fi
+green "当前v2rayn客户端配置文件v2rayn.json内容如下\n"
+yellow "$(cat /root/HY/acl/v2rayn.json)\n"
+green "当前hysteria节点分享链接如下："
+yellow "$(cat /root/HY/URL.txt)"
 }
 
 start_menu(){
@@ -369,54 +458,56 @@ green "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 white "甬哥Gitlab项目  ：gitlab.com/rwkgyg"
 white "甬哥blogger博客 ：ygkkk.blogspot.com"
 white "甬哥YouTube频道 ：www.youtube.com/c/甬哥侃侃侃kkkyg"
-white " ========================================================================================"
-green " 1. 安装hysteria"      
-green " 2. 修改当前协议类型"      
-green " 3. 更新脚本"  
-green " 4. 更新hysteria内核"
-green " 5. 切换IPV4/IPV6出站优先级" 
-green " 6. 卸载hysteria"
-green " 0. 退出脚本 "
+green "hysteria-yg脚本安装成功后，再次进入脚本的快捷方式为 hy"
 red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-if [ -f '/usr/local/bin/hysteria' ]; then
+green " 1. 安装hysteria（必选）"      
+green " 2. 修改当前协议类型" 
+green " 3. 切换IPV4/IPV6出站优先级" 
+green " 4. 关闭、开启、重启hysteria"   
+green " 5. 更新hysteria-yg安装脚本"  
+green " 6. 更新hysteria内核"
+green " 7. 卸载hysteria"
+white "----------------------------------------------------------------------------------"
+green " 8. 显示hysteria分享链接与V2rayN配置文件"
+green " 9. 安装warp（可选）"
+green " 10. 安装BBR+FQ加速（可选）"
+green " 0. 退出脚本"
+red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) && -f '/etc/hysteria/config.json' ]]; then
 if [ "${hyygV}" = "${remoteV}" ]; then
-green "已安装最新脚本：${hyygV} ，如有更新，此处会自动提示"
+green "当前hysteria-yg安装脚本版本号：${hyygV} ，已是最新版本\n"
 else
-green "当前安装的脚本：${hyygV}"
-yellow "检测到最新脚本：${remoteV} ，可选择3进行更新！"
+green "当前hysteria-yg安装脚本版本号：${hyygV}"
+yellow "检测到最新hysteria-yg安装脚本版本号：${remoteV} ，可选择5进行更新\n"
 fi
 loVERSION="$(/usr/local/bin/hysteria -v | awk 'NR==1 {print $3}')"
 hyVERSION="v$(curl -Ls "https://data.jsdelivr.com/v1/package/resolve/gh/HyNetwork/Hysteria" | grep '"version":' | sed -E 's/.*"([^"]+)".*/\1/')"
-if [ "${loVERSION}" = "${hyVERSION}" ]
-green "hysteria内核版本号：${loVERSION} ，如有更新，此处会自动提示"
+if [ "${loVERSION}" = "${hyVERSION}" ]; then
+green "当前hysteria内核版本号：${loVERSION} ，已是最新版本\n"
 else
-green "当前安装的脚本：${loVERSION}"
-yellow "检测到最新脚本：${hyVERSION} ，可选择4进行更新！"
+green "当前hysteria内核版本号：${loVERSION}"
+yellow "检测到最新hysteria内核版本号：${hyVERSION} ，可选择6进行更新\n"
 fi
 fi
-echo
 white "VPS系统信息如下："
-white "操作系统:         $(blue "$op")" && white "内核版本:         $(blue "$version")" && white "CPU架构 :         $(blue "$cpu")" && white "虚拟化类型:       $(blue "$vi")"
+white "操作系统:     $(blue "$op")" && white "内核版本:     $(blue "$version")" && white "CPU架构 :     $(blue "$cpu")" && white "虚拟化类型:   $(blue "$vi")" && white "TCP算法:      $(blue "$bbr")"
 white "$status"
 echo
 readp "请输入数字:" Input
 case "$Input" in     
  1 ) inshysteria;;
  2 ) changepr;;
- 3 ) uphyyg;;
- 4 ) uphysteriacore;; 
- 5 ) changeip;;
- 6 ) unins;;	
+ 3 ) changeip;;
+ 4 ) stclre;;
+ 5 ) uphyyg;; 
+ 6 ) uphysteriacore;;
+ 7 ) unins;;
+ 8 ) hysteriashare;;
+ 9 ) cfwarp;;
+ 10 ) bbr;;	
  * ) exit 
 esac
 }
-
-if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) ]]; then
-chmod +x /root/hyy.sh 
-ln -sf /root/hyy.sh /usr/bin/hy
-fi
-
-
 if [ $# == 0 ]; then
 start
 start_menu
