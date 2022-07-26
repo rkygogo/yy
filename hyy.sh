@@ -78,16 +78,16 @@ green "TUN守护功能已启动"
 fi
 fi
 fi
+[[ $(type -P yum) ]] && yumapt='yum -y' || yumapt='apt -y'
+[[ $(type -P curl) ]] || (yellow "检测到curl未安装，升级安装中" && $yumapt update;$yumapt install curl)
+[[ $(type -P lsof) ]] || (yellow "检测到lsof未安装，升级安装中" && $yumapt update;$yumapt install lsof)
+[[ ! $(type -P python3) ]] && (yellow "检测到python3未安装，升级安装中" && $yumapt update;$yumapt install python3)
 if [[ -z $(grep 'DiG 9' /etc/hosts) ]]; then
 v4=$(curl -s4m5 ip.gs -k)
 if [ -z $v4 ]; then
 echo -e nameserver 2a01:4f8:c2c:123f::1 > /etc/resolv.conf
 fi
 fi
-[[ $(type -P yum) ]] && yumapt='yum -y' || yumapt='apt -y'
-[[ $(type -P curl) ]] || (yellow "检测到curl未安装，升级安装中" && $yumapt update;$yumapt install curl)
-[[ $(type -P lsof) ]] || (yellow "检测到lsof未安装，升级安装中" && $yumapt update;$yumapt install lsof)
-[[ ! $(type -P python3) ]] && (yellow "检测到python3未安装，升级安装中" && $yumapt update;$yumapt install python3)
 systemctl stop firewalld.service >/dev/null 2>&1
 systemctl disable firewalld.service >/dev/null 2>&1
 setenforce 0 >/dev/null 2>&1
