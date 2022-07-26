@@ -1,5 +1,5 @@
 #!/bin/bash
-hyygV="22.7.23 V 1.8"
+hyygV="22.7.26 V 2.0"
 remoteV=`wget -qO- https://gitlab.com/rwkgyg/hysteria-yg/raw/main/hysteria.sh | sed  -n 2p | cut -d '"' -f 2`
 red='\033[0;31m'
 bblue='\033[0;34m'
