@@ -526,7 +526,7 @@ case "$Input" in
  1 ) inshysteria;;
  2 ) changepr;;
  3 ) changeip;;
- 4 ) changecertificate
+ 4 ) changecertificate;;
  5 ) stclre;;
  6 ) uphyyg;; 
  7 ) uphysteriacore;;
