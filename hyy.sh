@@ -305,7 +305,7 @@ if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -
 red "未正常安装hysteria!" && exit
 fi
 wget -N https://raw.githubusercontent.com/HyNetwork/hysteria/master/install_server.sh && bash install_server.sh
-systemctl restart hysteria-server >/dev/null 2>&1
+systemctl restart hysteria-server
 VERSION="$(/usr/local/bin/hysteria -v | awk 'NR==1 {print $3}')"
 blue "当前hysteria内核版本号：$VERSION"
 }
