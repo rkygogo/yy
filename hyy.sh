@@ -142,6 +142,8 @@ readp "1. www.bing.com自签证书（回车默认）\n2. acme一键申请证书�
 if [ -z "${certificate}" ] || [ $certificate == "1" ];then
 if [[ -f /etc/hysteria/cert.crt && -f /etc/hysteria/private.key ]]; then
 ym=www.bing.com
+certificatep='/etc/hysteria/private.key'
+certificatec='/etc/hysteria/cert.crt'
 blue "经检测，之前已申请过自签证书，已直接引用\n"
 else
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
