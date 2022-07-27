@@ -395,7 +395,7 @@ sed -i "s!$certificatecc!$certificatec!g" /etc/hysteria/config.json
 
 certclient(){
 if [[ $ym = www.bing.com && -z $(curl -s4m5 ip.gs -k) ]]; then
-oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}' |  grep -o '\[.*\]'`
+oldserver=`echo $(cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}' | grep -o '\[.*\]')`
 else
 oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}'| cut -d ':' -f 1`
 fi
