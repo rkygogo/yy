@@ -157,6 +157,7 @@ certificatep='/root/private.key'
 certificatec='/root/cert.crt'
 blue "经检测，之前已申请过acme证书，可直接引用\n"
 readp "请输入已申请过acme证书域名:" ym
+echo ${ym} > /etc/hysteria/ca.log
 blue "输入的域名：$ym，已直接引用\n"
 else
 wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
