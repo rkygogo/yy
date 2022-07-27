@@ -412,10 +412,11 @@ sureipadress
 systemctl start wg-quick@wgcf >/dev/null 2>&1
 fi
 if [[ $ym = www.bing.com ]]; then
+ym=www.bing.com
 ymip=$ip;ins=true
 else
 ym=$(cat /etc/hysteria/ca.log)
-ymip=$ym;ins=false
+ymip=$(cat /etc/hysteria/ca.log);ins=false
 fi
 }
 
