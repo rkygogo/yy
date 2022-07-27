@@ -388,14 +388,9 @@ if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -
 red "未正常安装hysteria!" && exit
 fi
 
-certserver(){
-inscertificate
-sed -i "s!$certificatepp!$certificatep!g" /etc/hysteria/config.json
-sed -i "s!$certificatecc!$certificatec!g" /etc/hysteria/config.json
-}
-
 certclient(){
-if [[ $ym = www.bing.com && -z $(curl -s4m5 ip.gs -k) ]]; then
+certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print $2}' | awk -F '"' '{ print $2}'`
+if [[ $certificate = '/etc/hysteria/cert.crt' && && -z $(curl -s4m5 ip.gs -k)]]; then
 oldserver=`echo $(cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}' | grep -o '\[.*\]')`
 else
 oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}'| cut -d ':' -f 1`
@@ -430,7 +425,7 @@ certificatepp='/etc/hysteria/private.key'
 certificatecc='/etc/hysteria/cert.crt'
 blue "当前正在使用的证书：自签bing证书，可更换为acme申请的证书"
 echo
-certserver
+inscertificate
 certclient
 sed -i "s/true/false/g" /root/HY/acl/v2rayn.json
 sed -i "s/true/false/g" /root/HY/URL.txt
@@ -439,7 +434,7 @@ certificatepp='/root/private.key'
 certificatecc='/root/cert.crt'
 blue "当前正在使用的证书：acme申请的证书，可更换为自签bing证书"
 echo
-certserver
+inscertificate
 certclient
 sed -i "s/false/true/g" /root/HY/acl/v2rayn.json
 sed -i "s/false/true/g" /root/HY/URL.txt
@@ -449,6 +444,8 @@ sed -i "s/$oldserver/$ymip/g" /root/HY/acl/v2rayn.json
 sed -i "s/$servername/$ym/g" /root/HY/acl/v2rayn.json
 sed -i "s/$oldserver/$ymip/g" /root/HY/URL.txt
 sed -i "s/$servername/$ym/g" /root/HY/URL.txt
+sed -i "s!$certificatepp!$certificatep!g" /etc/hysteria/config.json
+sed -i "s!$certificatecc!$certificatec!g" /etc/hysteria/config.json
 systemctl restart hysteria-server
 }
 
