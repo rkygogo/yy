@@ -244,7 +244,7 @@ cat <<EOF > /etc/hysteria/config.json
 EOF
 
 sureipadress(){
-ip=$(curl -s6m5 ip.gs -k) || ip=$(curl -s4m5 ip.gs -k)
+ip=$(curl -s4m5 ip.gs -k) || ip=$(curl -s6m5 ip.gs -k)
 if [[ -n $(echo $ip | grep ":") ]]; then
 ip="[$ip]"
 fi
@@ -389,17 +389,17 @@ red "未正常安装hysteria!" && exit
 fi
 
 certclient(){
-certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print $2}' | awk -F '"' '{ print $2}'`
-if [[ $certificate = '/etc/hysteria/cert.crt' && && -z $(curl -s4m5 ip.gs -k)]]; then
-oldserver=`echo $(cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}' | grep -o '\[.*\]')`
-else
-oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}'| cut -d ':' -f 1`
-fi
 servername=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server_name | awk '{print $2}' | awk -F '"' '{ print $2}'`
 sureipadress(){
 ip=$(curl -s4m5 ip.gs -k) || ip=$(curl -s6m5 ip.gs -k)
 if [[ -n $(echo $ip | grep ":") ]]; then
 ip="[$ip]"
+fi
+certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print $2}' | awk -F '"' '{ print $2}'`
+if [[ $certificate = '/etc/hysteria/cert.crt' && -z $(curl -s4m5 ip.gs -k)]]; then
+oldserver=`echo $(cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}' | grep -o '\[.*\]')`
+else
+oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}'| cut -d ':' -f 1`
 fi
 }
 wgcfv6=$(curl -s6m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
