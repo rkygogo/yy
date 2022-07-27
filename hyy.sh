@@ -440,10 +440,10 @@ sed -i "s/false/true/g" /root/HY/acl/v2rayn.json
 sed -i "s/false/true/g" /root/HY/URL.txt
 fi
 
-sed -i "s/$oldserver/$ymip/g" /root/HY/acl/v2rayn.json
-sed -i "s/$servername/$ym/g" /root/HY/acl/v2rayn.json
-sed -i "s/$oldserver/$ymip/g" /root/HY/URL.txt
-sed -i "s/$servername/$ym/g" /root/HY/URL.txt
+sed -i "s!$oldserver!$ymip!g" /root/HY/acl/v2rayn.json
+sed -i "s!$servername!$ym!g" /root/HY/acl/v2rayn.json
+sed -i "s!$oldserver!$ymip!g" /root/HY/URL.txt
+sed -i "s!$servername!$ym!g" /root/HY/URL.txt
 sed -i "s!$certificatepp!$certificatep!g" /etc/hysteria/config.json
 sed -i "s!$certificatecc!$certificatec!g" /etc/hysteria/config.json
 systemctl restart hysteria-server
