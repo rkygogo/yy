@@ -141,12 +141,10 @@ green "一、hysteria协议证书申请方式选择如下:"
 readp "1. www.bing.com自签证书（回车默认）\n2. acme一键申请证书（支持常规80端口模式与dns api模式）\n请选择：" certificate
 if [ -z "${certificate}" ] || [ $certificate == "1" ];then
 if [[ -f /etc/hysteria/cert.crt && -f /etc/hysteria/private.key ]]; then
-chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
 blue "之前已申请过自签证书，已直接引用\n"
 else
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=www.bing.com"
-chmod +755 /etc/hysteria/private.key /etc/hysteria/cert.crt
 ym=www.bing.com
 certificatep='/etc/hysteria/private.key'
 certificatec='/etc/hysteria/cert.crt'
@@ -154,7 +152,6 @@ fi
 blue "已确认证书模式: www.bing.com自签证书\n"
 elif [ $certificate == "2" ];then
 if [[ -f /root/cert.crt && -f /root/private.key ]] && [[ -s /root/cert.crt && -s /root/private.key ]]; then
-chmod +755 /root/private.key /root/cert.crt
 certificatep='/root/private.key'
 certificatec='/root/cert.crt'
 blue "之前已申请过acme证书，已直接引用\n"
@@ -162,7 +159,6 @@ else
 wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
 # wget -N https://gitlab.com/rwkgyg/acme-script/raw/main/acme.sh && bash acme.sh
 if [[ -f /root/private.key && -f /root/cert.crt ]]; then
-chmod +755 /root/private.key /root/cert.crt
 certificatep='/root/private.key'
 certificatec='/root/cert.crt'
 else
