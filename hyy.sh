@@ -430,7 +430,7 @@ blue "当前正在使用的证书：自签bing证书，可更换为acme申请的
 echo
 inscertificate
 certclient
-sed -i 's/true/false/g' /root/HY/acl/v2rayn.json
+sed -i '21s/true/false/g' /root/HY/acl/v2rayn.json
 sed -i 's/true/false/g' /root/HY/URL.txt
 else
 certificatepp='/root/private.key'
@@ -439,12 +439,12 @@ blue "当前正在使用的证书：acme申请的证书，可更换为自签bing
 echo
 inscertificate
 certclient
-sed -i 's/false/true/g' /root/HY/acl/v2rayn.json
+sed -i '21s/false/true/g' /root/HY/acl/v2rayn.json
 sed -i 's/false/true/g' /root/HY/URL.txt
 fi
 
-sed -i "s!$oldserver!$ymip!g" /root/HY/acl/v2rayn.json
-sed -i "s!$servername!$ym!g" /root/HY/acl/v2rayn.json
+sed -i "2s!$oldserver!$ymip!g" /root/HY/acl/v2rayn.json
+sed -i "20s!$servername!$ym!g" /root/HY/acl/v2rayn.json
 sed -i "s!$oldserver!$ymip!g" /root/HY/URL.txt
 sed -i "s!$servername!$ym!g" /root/HY/URL.txt
 sed -i "s!$certificatepp!$certificatep!g" /etc/hysteria/config.json
