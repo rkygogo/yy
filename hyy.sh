@@ -141,7 +141,8 @@ green "一、hysteria协议证书申请方式选择如下:"
 readp "1. www.bing.com自签证书（回车默认）\n2. acme一键申请证书（支持常规80端口模式与dns api模式）\n请选择：" certificate
 if [ -z "${certificate}" ] || [ $certificate == "1" ];then
 if [[ -f /etc/hysteria/cert.crt && -f /etc/hysteria/private.key ]]; then
-blue "之前已申请过自签证书，已直接引用\n"
+ym=www.bing.com
+blue "经检测，之前已申请过自签证书，已直接引用\n"
 else
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=www.bing.com"
@@ -154,7 +155,9 @@ elif [ $certificate == "2" ];then
 if [[ -f /root/cert.crt && -f /root/private.key ]] && [[ -s /root/cert.crt && -s /root/private.key ]]; then
 certificatep='/root/private.key'
 certificatec='/root/cert.crt'
-blue "之前已申请过acme证书，已直接引用\n"
+blue "经检测，之前已申请过acme证书，可直接引用\n"
+readp "请输入已申请过acme证书域名:" ym
+blue "输入的域名：$ym，已直接引用\n"
 else
 wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
 # wget -N https://gitlab.com/rwkgyg/acme-script/raw/main/acme.sh && bash acme.sh
@@ -383,24 +386,70 @@ changecertificate(){
 if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -f '/etc/hysteria/config.json' ]]; then
 red "未正常安装hysteria!" && exit
 fi
+
+certserver(){
+inscertificate
+sed -i "s!$certificatepp!$certificatep!g" /etc/hysteria/config.json
+sed -i "s!$certificatecc!$certificatec!g" /etc/hysteria/config.json
+}
+
+certclient(){
+if [[ $ym = www.bing.com && -z $(curl -s4m5 ip.gs -k) ]]; then
+oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}' |  grep -o '\[.*\]'`
+else
+oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}'| cut -d ':' -f 1`
+fi
+servername=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server_name | awk '{print $2}' | awk -F '"' '{ print $2}'`
+sureipadress(){
+ip=$(curl -s4m5 ip.gs -k) || ip=$(curl -s6m5 ip.gs -k)
+if [[ -n $(echo $ip | grep ":") ]]; then
+ip="[$ip]"
+fi
+}
+wgcfv6=$(curl -s6m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
+wgcfv4=$(curl -s4m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
+if [[ ! $wgcfv4 =~ on|plus && ! $wgcfv6 =~ on|plus ]]; then
+sureipadress
+else
+systemctl stop wg-quick@wgcf >/dev/null 2>&1
+sureipadress
+systemctl start wg-quick@wgcf >/dev/null 2>&1
+fi
+if [[ $ym = www.bing.com ]]; then
+ymip=$ip;ins=true
+else
+ym=$(cat /etc/hysteria/ca.log)
+ymip=$ym;ins=false
+fi
+}
+
 certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print $2}' | awk -F '"' '{ print $2}'`
 if [[ $certificate = '/etc/hysteria/cert.crt' ]]; then
 certificatepp='/etc/hysteria/private.key'
 certificatecc='/etc/hysteria/cert.crt'
-blue "当前正在使用的证书：自签bing证书"
+blue "当前正在使用的证书：自签bing证书，可更换为acme申请的证书"
+echo
+certserver
+certclient
+sed -i "s/true/false/g" /root/HY/acl/v2rayn.json
+sed -i "s/true/false/g" /root/HY/URL.txt
 else
 certificatepp='/root/private.key'
 certificatecc='/root/cert.crt'
-blue "当前正在使用的证书：acme申请的证书"
-fi
+blue "当前正在使用的证书：acme申请的证书，可更换为自签bing证书"
 echo
-inscertificate
-sed -i "s!$certificatepp!$certificatep!g" /etc/hysteria/config.json
-sed -i "s!$certificatecc!$certificatec!g" /etc/hysteria/config.json
+certserver
+certclient
+sed -i "s/false/true/g" /root/HY/acl/v2rayn.json
+sed -i "s/false/true/g" /root/HY/URL.txt
+fi
+
+sed -i "s/$oldserver/$ymip/g" /root/HY/acl/v2rayn.json
+sed -i "s/$servername/$ym/g" /root/HY/acl/v2rayn.json
+sed -i "s/$oldserver/$ymip/g" /root/HY/URL.txt
+sed -i "s/$servername/$ym/g" /root/HY/URL.txt
 systemctl restart hysteria-server
 }
-
-
 
 changeip(){
 if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -f '/etc/hysteria/config.json' ]]; then
