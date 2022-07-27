@@ -165,7 +165,7 @@ if [[ -f /root/private.key && -f /root/cert.crt ]]; then
 certificatep='/root/private.key'
 certificatec='/root/cert.crt'
 else
-red "证书申请未成功或者证书不存在" && inscertificate
+red "证书申请未成功或者证书不存在" && exit
 fi
 fi
 else 
