@@ -83,7 +83,7 @@ fi
 [[ $(type -P lsof) ]] || (yellow "检测到lsof未安装，升级安装中" && $yumapt update;$yumapt install lsof)
 [[ ! $(type -P python3) ]] && (yellow "检测到python3未安装，升级安装中" && $yumapt update;$yumapt install python3)
 if [[ -z $(grep 'DiG 9' /etc/hosts) ]]; then
-v4=$(curl -s4m5 ip.gs -k)
+v4=$(curl -s4m5 https://ip.gs -k)
 if [ -z $v4 ]; then
 echo -e nameserver 2a01:4f8:c2c:123f::1 > /etc/resolv.conf
 fi
@@ -226,7 +226,7 @@ blue "已确认验证密码：${pswd}\n"
 insconfig(){
 green "五、设置配置文件中……，稍等5秒"
 mkdir -p /root/HY/acl
-v4=$(curl -s4m5 ip.gs -k)
+v4=$(curl -s4m5 https://ip.gs -k)
 [[ -z $v4 ]] && rpip=64 || rpip=46
 cat <<EOF > /etc/hysteria/config.json
 {
@@ -246,7 +246,7 @@ cat <<EOF > /etc/hysteria/config.json
 EOF
 
 sureipadress(){
-ip=$(curl -s4m5 ip.gs -k) || ip=$(curl -s6m5 ip.gs -k)
+ip=$(curl -s4m5 https://ip.gs -k) || ip=$(curl -s6m5 https://ip.gs -k)
 if [[ -n $(echo $ip | grep ":") ]]; then
 ip="[$ip]"
 fi
@@ -393,9 +393,9 @@ fi
 certclient(){
 servername=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server_name | awk '{print $2}' | awk -F '"' '{ print $2}'`
 sureipadress(){
-ip=$(curl -s4m5 ip.gs -k) || ip=$(curl -s6m5 ip.gs -k)
+ip=$(curl -s4m5 https://ip.gs -k) || ip=$(curl -s6m5 https://ip.gs -k)
 certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print $2}' | awk -F '"' '{ print $2}'`
-if [[ $certificate = '/etc/hysteria/cert.crt' && -z $(curl -s4m5 ip.gs -k) ]]; then
+if [[ $certificate = '/etc/hysteria/cert.crt' && -z $(curl -s4m5 https://ip.gs -k) ]]; then
 oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}' | grep -o '\[.*\]' | cut -d '[' -f2|cut -d ']' -f1`
 else
 oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}'| cut -d ':' -f 1`
@@ -466,8 +466,8 @@ changeip(){
 if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -f '/etc/hysteria/config.json' ]]; then
 red "未正常安装hysteria!" && exit
 fi
-ipv6=$(curl -s6m5 ip.gs -k) 
-ipv4=$(curl -s4m5 ip.gs -k)
+ipv6=$(curl -s6m5 https://ip.gs -k) 
+ipv4=$(curl -s4m5 https://ip.gs -k)
 green "切换IPV4/IPV6出站优先级选择如下:"
 readp "1. IPV4优先\n2. IPV6优先\n请选择：" rrpip
 if [[ $rrpip == "1" && -n $ipv4 ]];then
@@ -480,7 +480,7 @@ fi
 rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
 sed -i "4s/$rpip/$rrpip/g" /etc/hysteria/config.json
 systemctl restart hysteria-server
-[[ $rrpip = 46 ]] && v4v6="IPV4优先：$(curl -s4 ip.gs -k)" || v4v6="IPV6优先：$(curl -s6 ip.gs -k)"
+[[ $rrpip = 46 ]] && v4v6="IPV4优先：$(curl -s4 https://ip.gs -k)" || v4v6="IPV6优先：$(curl -s6 https://ip.gs -k)"
 blue "确定当前已更换的IP优先级：${v4v6}\n"
 }
 
@@ -523,7 +523,7 @@ wgcfv4=$(curl -s4m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cu
 if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) && -f '/etc/hysteria/config.json' ]]; then
 noprotocol=`cat /etc/hysteria/config.json 2>/dev/null | grep protocol | awk '{print $2}' | awk -F '"' '{ print $2}'`
 rpip=`cat /etc/hysteria/config.json 2>/dev/null | grep resolve_preference | awk '{print $2}' | awk -F '"' '{ print $2}'`
-[[ $rpip = 64 ]] && v4v6="IPV6优先：$(curl -s6 ip.gs -k)" || v4v6="IPV4优先：$(curl -s4 ip.gs -k)"
+[[ $rpip = 64 ]] && v4v6="IPV6优先：$(curl -s6 https://ip.gs -k)" || v4v6="IPV4优先：$(curl -s4 https://ip.gs -k)"
 status=$(white "hysteria状态：\c";green "运行中";white "hysteria协议：\c";green "$noprotocol";white "优先出站IP：  \c";green "$v4v6";white "WARP状态：    \c";eval echo \$wgcf)
 else
 status=$(white "hysteria状态：\c";red "未启动";white "WARP状态：    \c";eval echo \$wgcf)
