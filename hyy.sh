@@ -399,6 +399,14 @@ oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{pri
 else
 oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}'| cut -d ':' -f 1`
 fi
+
+if [[ $certificate = '/etc/hysteria/cert.crt' ]]; then
+ym=www.bing.com
+ymip=$ip
+else
+ym=$(cat /etc/hysteria/ca.log)
+ymip=$(cat /etc/hysteria/ca.log)
+fi
 }
 wgcfv6=$(curl -s6m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
 wgcfv4=$(curl -s4m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
@@ -408,18 +416,6 @@ else
 systemctl stop wg-quick@wgcf >/dev/null 2>&1
 sureipadress
 systemctl start wg-quick@wgcf >/dev/null 2>&1
-fi
-certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print $2}' | awk -F '"' '{ print $2}'`
-if [[ $certificate = '/etc/hysteria/cert.crt' ]]; then
-ym=www.bing.com
-if [[ -z $(curl -s4m5 https://ip.gs -k) ]]; then
-ymip=[$ip]
-else
-ymip=$ip
-fi
-else
-ym=$(cat /etc/hysteria/ca.log)
-ymip=$(cat /etc/hysteria/ca.log)
 fi
 }
 
@@ -447,18 +443,18 @@ fi
 if [[ $certificate = '/etc/hysteria/cert.crt' && -z $(curl -s4m5 https://ip.gs -k) ]]; then
 sed -i "2s/\[$oldserver\]/${ymip}/g" /root/HY/acl/v2rayn.json
 sed -i "s/\[$oldserver\]/${ymip}/g" /root/HY/URL.txt
-sed -i "s!$servername!$ym!g" /root/HY/acl/v2rayn.json
-sed -i "s!$servername!$ym!g" /root/HY/URL.txt
+sed -i "s/$servername/$ym/g" /root/HY/acl/v2rayn.json
+sed -i "s/$servername/$ym/g" /root/HY/URL.txt
 elif [[ $certificate = '/root/cert.crt' && -z $(curl -s4m5 https://ip.gs -k) ]]; then
 sed -i "2s/$oldserver/\[${ymip}\]/g" /root/HY/acl/v2rayn.json
 sed -i "s/$oldserver/\[${ymip}\]/g" /root/HY/URL.txt
-sed -i "s!$servername!$ym!g" /root/HY/acl/v2rayn.json
-sed -i "s!$servername!$ym!g" /root/HY/URL.txt
+sed -i "s/$servername/$ym/g" /root/HY/acl/v2rayn.json
+sed -i "s/$servername/$ym/g" /root/HY/URL.txt
 else
-sed -i "s!$oldserver!${ymip}!g" /root/HY/acl/v2rayn.json
-sed -i "s!$servername!$ym!g" /root/HY/acl/v2rayn.json
-sed -i "s!$oldserver!${ymip}!g" /root/HY/URL.txt
-sed -i "s!$servername!$ym!g" /root/HY/URL.txt
+sed -i "s/$oldserver/${ymip}/g" /root/HY/acl/v2rayn.json
+sed -i "s/$servername/$ym/g" /root/HY/acl/v2rayn.json
+sed -i "s/$oldserver/${ymip}/g" /root/HY/URL.txt
+sed -i "s/$servername/$ym/g" /root/HY/URL.txt
 fi
 
 sed -i "s!$certificatepp!$certificatep!g" /etc/hysteria/config.json
@@ -508,6 +504,17 @@ python3 /root/HY/GetRoutes.py
 mv -f Country.mmdb routes.acl /root/HY/acl
 hysteriastatus
 white "$status\n"
+wgcfv6=$(curl -s6m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2) 
+wgcfv4=$(curl -s4m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
+if [[ ! $wgcfv4 =~ on|plus && ! $wgcfv6 =~ on|plus ]]; then 
+ip=$(curl -s6m5 https://ip.gs -k) || ip=$(curl -s4m5 https://ip.gs -k)
+[[ -z $(curl -s4m5 https://ip.gs -k) ]] && ymip=[$ip] || ymip=$ip
+else
+systemctl stop wg-quick@wgcf >/dev/null 2>&1
+ip=$(curl -s6m5 https://ip.gs -k) || ip=$(curl -s4m5 https://ip.gs -k)
+[[ -z $(curl -s4m5 https://ip.gs -k) ]] && ymip=[$ip] || ymip=$ip
+systemctl start wg-quick@wgcf >/dev/null 2>&1
+fi
 url="hysteria://${ymip}:${port}?protocol=${hysteria_protocol}&auth=${pswd}&peer=${ym}&insecure=${ins}&upmbps=1000&downmbps=1000&alpn=h3#HY-${ymip}"
 echo ${url} > /root/HY/URL.txt
 green "六、hysteria代理服务安装完成，生成脚本的快捷方式为 hy"
