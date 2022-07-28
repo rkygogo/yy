@@ -394,12 +394,9 @@ certclient(){
 servername=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server_name | awk '{print $2}' | awk -F '"' '{ print $2}'`
 sureipadress(){
 ip=$(curl -s4m5 ip.gs -k) || ip=$(curl -s6m5 ip.gs -k)
-if [[ -n $(echo $ip | grep ":") ]]; then
-ip="[$ip]"
-fi
 certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print $2}' | awk -F '"' '{ print $2}'`
 if [[ $certificate = '/etc/hysteria/cert.crt' && -z $(curl -s4m5 ip.gs -k) ]]; then
-oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}' | grep -o '\[.*\]' | awk '{print $NF}'`
+oldserver=`cat /root/1.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}' | grep -o '\[.*\]' | cut -d '[' -f2|cut -d ']' -f1`
 else
 oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}'| cut -d ':' -f 1`
 fi
@@ -443,10 +440,23 @@ sed -i '21s/false/true/g' /root/HY/acl/v2rayn.json
 sed -i 's/false/true/g' /root/HY/URL.txt
 fi
 
-sed -i "2s!$oldserver!$ymip!g" /root/HY/acl/v2rayn.json
-sed -i "20s!$servername!$ym!g" /root/HY/acl/v2rayn.json
+if [[ $certificate = '/etc/hysteria/cert.crt' && -z $(curl -s4m5 ip.gs) ]]; then
+sed -i "2s/\[$oldserver\]/${ymip}/g" /root/HY/acl/v2rayn.json
+sed -i "s/\[$oldserver\]/${ymip}/g" /root/HY/URL.txt
+sed -i "s!$servername!$ym!g" /root/HY/acl/v2rayn.json
+sed -i "s!$servername!$ym!g" /root/HY/URL.txt
+elif [[ $certificate = '/root/cert.crt' && -z $(curl -s4m5 ip.gs) ]]; then
+sed -i "2s/$oldserver/\[${ymip}\]/g" /root/HY/acl/v2rayn.json
+sed -i "s/$oldserver/\[${ymip}\]/g" /root/HY/URL.txt
+sed -i "s!$servername!$ym!g" /root/HY/acl/v2rayn.json
+sed -i "s!$servername!$ym!g" /root/HY/URL.txt
+else
+sed -i "s!$oldserver!$ymip!g" /root/HY/acl/v2rayn.json
+sed -i "s!$servername!$ym!g" /root/HY/acl/v2rayn.json
 sed -i "s!$oldserver!$ymip!g" /root/HY/URL.txt
 sed -i "s!$servername!$ym!g" /root/HY/URL.txt
+fi
+
 sed -i "s!$certificatepp!$certificatep!g" /etc/hysteria/config.json
 sed -i "s!$certificatecc!$certificatec!g" /etc/hysteria/config.json
 systemctl restart hysteria-server
