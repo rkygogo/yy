@@ -1,5 +1,5 @@
 #!/bin/bash
-hyygV="22.7.26 V 2.0"
+hyygV="22.7.28 V 2.0"
 remoteV=`wget -qO- https://gitlab.com/rwkgyg/hysteria-yg/raw/main/hysteria.sh | sed  -n 2p | cut -d '"' -f 2`
 red='\033[0;31m'
 bblue='\033[0;34m'
@@ -162,8 +162,7 @@ readp "请输入已申请过acme证书域名:" ym
 echo ${ym} > /etc/hysteria/ca.log
 blue "输入的域名：$ym，已直接引用\n"
 else
-wget -N https://raw.githubusercontent.com/rkygogo/1-acmecript/main/acme.sh && bash acme.sh
-# wget -N https://gitlab.com/rwkgyg/acme-script/raw/main/acme.sh && bash acme.sh
+wget -N https://gitlab.com/rwkgyg/acme-script/raw/main/acme.sh && bash acme.sh
 if [[ -f /root/private.key && -f /root/cert.crt ]]; then
 certificatep='/root/private.key'
 certificatec='/root/cert.crt'
@@ -246,7 +245,7 @@ cat <<EOF > /etc/hysteria/config.json
 EOF
 
 sureipadress(){
-ip=$(curl -s4m5 https://ip.gs -k) || ip=$(curl -s6m5 https://ip.gs -k)
+ip=$(curl -s6m5 https://ip.gs -k) || ip=$(curl -s4m5 https://ip.gs -k)
 if [[ -n $(echo $ip | grep ":") ]]; then
 ip="[$ip]"
 fi
@@ -393,7 +392,7 @@ fi
 certclient(){
 servername=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server_name | awk '{print $2}' | awk -F '"' '{ print $2}'`
 sureipadress(){
-ip=$(curl -s4m5 https://ip.gs -k) || ip=$(curl -s6m5 https://ip.gs -k)
+ip=$(curl -s6m5 https://ip.gs -k) || ip=$(curl -s4m5 https://ip.gs -k)
 certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print $2}' | awk -F '"' '{ print $2}'`
 if [[ $certificate = '/etc/hysteria/cert.crt' && -z $(curl -s4m5 https://ip.gs -k) ]]; then
 oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}' | grep -o '\[.*\]' | cut -d '[' -f2|cut -d ']' -f1`
@@ -411,11 +410,10 @@ sureipadress
 systemctl start wg-quick@wgcf >/dev/null 2>&1
 fi
 if [[ $ym = www.bing.com ]]; then
-ym=www.bing.com
-ymip=$ip;ins=true
+[[ -z $(curl -s4m5 https://ip.gs -k) ]] && ymip=[$ip] || ymip=$ip
 else
 ym=$(cat /etc/hysteria/ca.log)
-ymip=$(cat /etc/hysteria/ca.log);ins=false
+ymip=$(cat /etc/hysteria/ca.log)
 fi
 }
 
@@ -440,20 +438,20 @@ sed -i '21s/false/true/g' /root/HY/acl/v2rayn.json
 sed -i 's/false/true/g' /root/HY/URL.txt
 fi
 
-if [[ $certificate = '/etc/hysteria/cert.crt' && -z $(curl -s4m5 ip.gs) ]]; then
+if [[ $certificate = '/etc/hysteria/cert.crt' && -z $(curl -s4m5 https://ip.gs -k) ]]; then
 sed -i "2s/\[$oldserver\]/${ymip}/g" /root/HY/acl/v2rayn.json
 sed -i "s/\[$oldserver\]/${ymip}/g" /root/HY/URL.txt
 sed -i "s!$servername!$ym!g" /root/HY/acl/v2rayn.json
 sed -i "s!$servername!$ym!g" /root/HY/URL.txt
-elif [[ $certificate = '/root/cert.crt' && -z $(curl -s4m5 ip.gs) ]]; then
+elif [[ $certificate = '/root/cert.crt' && -z $(curl -s4m5 https://ip.gs -k) ]]; then
 sed -i "2s/$oldserver/\[${ymip}\]/g" /root/HY/acl/v2rayn.json
 sed -i "s/$oldserver/\[${ymip}\]/g" /root/HY/URL.txt
 sed -i "s!$servername!$ym!g" /root/HY/acl/v2rayn.json
 sed -i "s!$servername!$ym!g" /root/HY/URL.txt
 else
-sed -i "s!$oldserver!$ymip!g" /root/HY/acl/v2rayn.json
+sed -i "s!$oldserver!${ymip}!g" /root/HY/acl/v2rayn.json
 sed -i "s!$servername!$ym!g" /root/HY/acl/v2rayn.json
-sed -i "s!$oldserver!$ymip!g" /root/HY/URL.txt
+sed -i "s!$oldserver!${ymip}!g" /root/HY/URL.txt
 sed -i "s!$servername!$ym!g" /root/HY/URL.txt
 fi
 
@@ -576,7 +574,7 @@ if [ "${hyygV}" = "${remoteV}" ]; then
 green "当前hysteria-yg安装脚本版本号：${hyygV} ，已是最新版本\n"
 else
 green "当前hysteria-yg安装脚本版本号：${hyygV}"
-yellow "检测到最新hysteria-yg安装脚本版本号：${remoteV} ，可选择6进行更新\n"
+yellow "检测到最新hysteria-yg安装脚本版本号：${remoteV} ，可选择7进行更新\n"
 fi
 loVERSION="$(/usr/local/bin/hysteria -v | awk 'NR==1 {print $3}')"
 hyVERSION="v$(curl -Ls "https://data.jsdelivr.com/v1/package/resolve/gh/HyNetwork/Hysteria" | grep '"version":' | sed -E 's/.*"([^"]+)".*/\1/')"
@@ -584,7 +582,7 @@ if [ "${loVERSION}" = "${hyVERSION}" ]; then
 green "当前hysteria内核版本号：${loVERSION} ，已是最新版本\n"
 else
 green "当前hysteria内核版本号：${loVERSION}"
-yellow "检测到最新hysteria内核版本号：${hyVERSION} ，可选择7进行更新\n"
+yellow "检测到最新hysteria内核版本号：${hyVERSION} ，可选择8进行更新\n"
 fi
 fi
 white "VPS系统信息如下："
@@ -611,4 +609,5 @@ if [ $# == 0 ]; then
 start
 start_menu
 fi
+
 
