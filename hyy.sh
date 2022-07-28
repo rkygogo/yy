@@ -409,8 +409,14 @@ systemctl stop wg-quick@wgcf >/dev/null 2>&1
 sureipadress
 systemctl start wg-quick@wgcf >/dev/null 2>&1
 fi
-if [[ $ym = www.bing.com ]]; then
-[[ -z $(curl -s4m5 https://ip.gs -k) ]] && ymip=[$ip] || ymip=$ip
+certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print $2}' | awk -F '"' '{ print $2}'`
+if [[ $certificate = '/etc/hysteria/cert.crt' ]]; then
+ym=www.bing.com
+if [[ -z $(curl -s4m5 https://ip.gs -k) ]]; then
+ymip=[$ip]
+else
+ymip=$ip
+fi
 else
 ym=$(cat /etc/hysteria/ca.log)
 ymip=$(cat /etc/hysteria/ca.log)
