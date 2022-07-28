@@ -246,9 +246,7 @@ EOF
 
 sureipadress(){
 ip=$(curl -s6m5 https://ip.gs -k) || ip=$(curl -s4m5 https://ip.gs -k)
-if [[ -n $(echo $ip | grep ":") ]]; then
-ip="[$ip]"
-fi
+[[ -n $(echo $ip | grep ":") ]] && ymip="[$ip]" || ymip=$ip
 }
 
 wgcfv6=$(curl -s6m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
@@ -262,7 +260,7 @@ systemctl start wg-quick@wgcf >/dev/null 2>&1
 fi
 
 if [[ $ym = www.bing.com ]]; then
-ymip=$ip;ins=true
+ins=true
 else
 ym=$(cat /etc/hysteria/ca.log)
 ymip=$ym;ins=false
@@ -504,15 +502,17 @@ python3 /root/HY/GetRoutes.py
 mv -f Country.mmdb routes.acl /root/HY/acl
 hysteriastatus
 white "$status\n"
+sureipadress(){
+ip=$(curl -s6m5 https://ip.gs -k) || ip=$(curl -s4m5 https://ip.gs -k)
+[[ -n $(echo $ip | grep ":") ]] && ymip="[$ip]" || ymip=$ip
+}
 wgcfv6=$(curl -s6m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2) 
 wgcfv4=$(curl -s4m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
 if [[ ! $wgcfv4 =~ on|plus && ! $wgcfv6 =~ on|plus ]]; then 
-ip=$(curl -s6m5 https://ip.gs -k) || ip=$(curl -s4m5 https://ip.gs -k)
-[[ -z $(curl -s4m5 https://ip.gs -k) ]] && ymip=[$ip] || ymip=$ip
+sureipadress
 else
 systemctl stop wg-quick@wgcf >/dev/null 2>&1
-ip=$(curl -s6m5 https://ip.gs -k) || ip=$(curl -s4m5 https://ip.gs -k)
-[[ -z $(curl -s4m5 https://ip.gs -k) ]] && ymip=[$ip] || ymip=$ip
+sureipadress
 systemctl start wg-quick@wgcf >/dev/null 2>&1
 fi
 url="hysteria://${ymip}:${port}?protocol=${hysteria_protocol}&auth=${pswd}&peer=${ym}&insecure=${ins}&upmbps=1000&downmbps=1000&alpn=h3#HY-${ymip}"
