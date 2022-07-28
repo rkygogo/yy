@@ -399,11 +399,11 @@ oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{pri
 fi
 
 if [[ $certificate = '/etc/hysteria/cert.crt' ]]; then
-ym=www.bing.com
-ymip=$ip
-else
 ym=$(cat /etc/hysteria/ca.log)
 ymip=$(cat /etc/hysteria/ca.log)
+else
+ym=www.bing.com
+ymip=$ip
 fi
 }
 wgcfv6=$(curl -s6m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
