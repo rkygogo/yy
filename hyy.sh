@@ -392,8 +392,12 @@ servername=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server_name | awk
 sureipadress(){
 ip=$(curl -s6m5 https://ip.gs -k) || ip=$(curl -s4m5 https://ip.gs -k)
 certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print $2}' | awk -F '"' '{ print $2}'`
-if [[ $certificate = '/etc/hysteria/cert.crt' && -z $(curl -s4m5 https://ip.gs -k) ]]; then
+if [[ $certificate = '/etc/hysteria/cert.crt' ]]; then
+if [[ -n $(curl -s6m5 https://ip.gs -k) ]]; then
 oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}' | grep -o '\[.*\]' | cut -d '[' -f2|cut -d ']' -f1`
+else
+oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}'| cut -d ':' -f 1`
+fi
 else
 oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}'| cut -d ':' -f 1`
 fi
