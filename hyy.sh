@@ -444,7 +444,9 @@ fi
 
 if [[ $certificate = '/etc/hysteria/cert.crt' && -z $(curl -s4m5 https://ip.gs -k) ]]; then
 sed -i "2s/\[$oldserver\]/${ymip}/g" /root/HY/acl/v2rayn.json
+sed -i '2s/\[//;2s/\]//' /root/HY/acl/v2rayn.json
 sed -i "s/\[$oldserver\]/${ymip}/g" /root/HY/URL.txt
+sed -i 's/\[//;s/\]//' /root/HY/URL.txt
 sed -i "s/$servername/$ym/g" /root/HY/acl/v2rayn.json
 sed -i "s/$servername/$ym/g" /root/HY/URL.txt
 elif [[ $certificate = '/root/cert.crt' && -z $(curl -s4m5 https://ip.gs -k) ]]; then
