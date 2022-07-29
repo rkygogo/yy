@@ -409,7 +409,7 @@ certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print
 if [[ $certificate = '/etc/hysteria/cert.crt' ]]; then
 certificatepp='/etc/hysteria/private.key'
 certificatecc='/etc/hysteria/cert.crt'
-blue "当前正在使用的证书：自签bing证书，可更换为acme申请的证书"
+blue "当前正在使用的证书：bing自签证书，可更换为acme申请的证书"
 echo
 readp "是否切换？（回车为是。其他选择为否，并返回主菜单）\n请选择：" choose
 if [ -z "${choose}" ]; then
@@ -433,7 +433,7 @@ fi
 else
 certificatepp='/root/private.key'
 certificatecc='/root/cert.crt'
-blue "当前正在使用的证书：acme申请的证书，可更换为自签bing证书"
+blue "当前正在使用的证书：acme申请的证书，可更换为bing自签证书"
 echo
 readp "是否切换？（回车为是。其他选择为否，并返回主菜单）\n请选择：" choose
 if [ -z "${choose}" ]; then
