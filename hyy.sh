@@ -497,6 +497,57 @@ systemctl restart hysteria-server
 blue "确定当前已更换的IP优先级：${v4v6}\n"
 }
 
+changepswd(){
+if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -f '/etc/hysteria/config.json' ]]; then
+red "未正常安装hysteria!" && exit
+fi
+oldpswd=`cat /etc/hysteria/config.json 2>/dev/null | grep -w password | grep -a 2 | awk '{print $2}' | awk -F '"' '{ print $2}'`
+echo
+blue "当前正在使用的验证密码：$oldpswd"
+echo
+inspswd
+sed -i "8s/$oldpswd/$pswd/g" /etc/hysteria/config.json
+sed -i "19s/$oldpswd/$pswd/g" /root/HY/acl/v2rayn.json
+sed -i "s/$oldpswd/$pswd/g" /root/HY/URL.txt
+systemctl restart hysteria-server
+blue "hysteria代理服务的验证密码已由 $oldpswd 更换为 $pswd ，配置已更新 "
+hysteriashare
+}
+
+changeport(){
+if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -f '/etc/hysteria/config.json' ]]; then
+red "未正常安装hysteria!" && exit
+fi
+oldport=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}'| awk -F ':' '{ print $NF}'`
+echo
+blue "当前正在使用的端口：$oldport"
+echo
+insport
+sed -i "2s/$oldport/$port/g" /etc/hysteria/config.json
+sed -i "2s/$oldport/$port/g" /root/HY/acl/v2rayn.json
+sed -i "s/$oldport/$port/g" /root/HY/URL.txt
+systemctl restart hysteria-server
+blue "hysteria代理服务的端口已由 $oldport 更换为 $port ，配置已更新 "
+hysteriashare
+}
+
+changeserv(){
+green "二、hysteria配置变更选择如下:"
+readp "1. 切换IPV4/IPV6出站优先级\n2. 切换传输协议类型\n3. 切换证书类型\n4. 更换验证密码\n5. 更换端口\n请选择：" choose
+if [ $choose == "1" ];then
+changeip
+elif [ $choose == "2" ];then
+changepr
+elif [ $choose == "3" ];then
+changecertificate
+elif [ $choose == "4" ];then
+changepswd
+elif [ $choose == "5" ];then
+changeport
+else 
+red "输入错误，请重新选择" && changeserv
+fi
+
 inshysteria(){
 start ; inshy ; inscertificate ; inspr ; insport ; inspswd
 if [[ ! $vi =~ lxc|openvz ]]; then
@@ -587,20 +638,18 @@ white "甬哥blogger博客 ：ygkkk.blogspot.com"
 white "甬哥YouTube频道 ：www.youtube.com/c/甬哥侃侃侃kkkyg"
 green "hysteria-yg脚本安装成功后，再次进入脚本的快捷方式为 hy"
 red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-green "  1. 安装hysteria（必选）" 
-green "  2. 卸载hysteria"
+green " 1. 安装hysteria（必选）" 
+green " 2. 卸载hysteria"
 white "----------------------------------------------------------------------------------"
-green "  3. 更换当前协议类型" 
-green "  4. 切换IPV4/IPV6出站优先级"
-green "  5. 更换当前证书类型"
-green "  6. 关闭、开启、重启hysteria"   
-green "  7. 更新hysteria-yg安装脚本"  
-green "  8. 更新hysteria内核"
+green " 3. 五种配置快速变更(IP优先级、传输协议、证书类型、验证密码、端口)" 
+green " 4. 关闭、开启、重启hysteria"   
+green " 5. 更新hysteria-yg安装脚本"  
+green " 6. 更新hysteria内核"
 white "----------------------------------------------------------------------------------"
-green "  9. 显示hysteria分享链接与V2rayN配置文件"
-green " 10. 安装warp（可选）"
-green " 11. 安装BBR+FQ加速（可选）"
-green "  0. 退出脚本"
+green " 7. 显示hysteria分享链接与V2rayN配置文件"
+green " 8. 安装warp（可选）"
+green " 9. 安装BBR+FQ加速（可选）"
+green " 0. 退出脚本"
 red "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 if [[ -n $(systemctl status hysteria-server 2>/dev/null | grep -w active) && -f '/etc/hysteria/config.json' ]]; then
 if [ "${hyygV}" = "${remoteV}" ]; then
@@ -626,15 +675,13 @@ readp "请输入数字:" Input
 case "$Input" in     
  1 ) inshysteria;;
  2 ) unins;;
- 3 ) changepr;;
- 4 ) changeip;;
- 5 ) changecertificate;;
- 6 ) stclre;;
- 7 ) uphyyg;; 
- 8 ) uphysteriacore;;
- 9 ) hysteriashare;;
-10 ) cfwarp;;
-11 ) bbr;;
+ 3 ) changeserv;;
+ 4 ) stclre;;
+ 5 ) uphyyg;; 
+ 6 ) uphysteriacore;;
+ 7 ) hysteriashare;;
+ 8 ) cfwarp;;
+ 9 ) bbr;;
  * ) exit 
 esac
 }
