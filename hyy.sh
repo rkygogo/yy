@@ -372,7 +372,7 @@ blue "当前正在使用的协议：$noprotocol"
 echo
 inspr
 sed -i "s/$noprotocol/$hysteria_protocol/g" /etc/hysteria/config.json
-sed -i "s/$noprotocol/$hysteria_protocol/g" /root/HY/acl/v2rayn.json
+sed -i "3s/$noprotocol/$hysteria_protocol/g" /root/HY/acl/v2rayn.json
 sed -i "s/$noprotocol/$hysteria_protocol/g" /root/HY/URL.txt
 systemctl restart hysteria-server
 blue "hysteria代理服务的协议已由 $noprotocol 更换为 $hysteria_protocol ，配置已更新 "
