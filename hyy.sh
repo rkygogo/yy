@@ -163,12 +163,9 @@ echo ${ym} > /etc/hysteria/ca.log
 blue "输入的域名：$ym，已直接引用\n"
 else
 wget -N https://gitlab.com/rwkgyg/acme-script/raw/main/acme.sh && bash acme.sh
-if [[ -f /root/private.key && -f /root/cert.crt ]]; then
+ym=$(cat /etc/hysteria/ca.log)
 certificatep='/root/private.key'
 certificatec='/root/cert.crt'
-else
-red "证书申请未成功或者证书不存在" && exit
-fi
 fi
 else 
 red "输入错误，请重新选择" && inscertificate
@@ -427,19 +424,48 @@ certificatepp='/etc/hysteria/private.key'
 certificatecc='/etc/hysteria/cert.crt'
 blue "当前正在使用的证书：自签bing证书，可更换为acme申请的证书"
 echo
-inscertificate
+readp "是否切换？（回车或Yy为是。其他选择为否，并返回主菜单）\n请选择：" choose
+if [ -z "${choose}" ] || [[ $choose =[Yy] ]]; then
+if [[ -f /root/cert.crt && -f /root/private.key ]]; then
+blue "经检测，之前已申请过acme证书，可直接引用\n"
+readp "请输入已申请过acme证书域名:" ym
+echo ${ym} > /etc/hysteria/ca.log
+blue "输入的域名：$ym，已直接引用\n"
+else
+wget -N https://gitlab.com/rwkgyg/acme-script/raw/main/acme.sh && bash acme.sh
+ym=$(cat /etc/hysteria/ca.log)
+fi
+certificatep='/root/private.key'
+certificatec='/root/cert.crt'
 certclient
 sed -i '21s/true/false/g' /root/HY/acl/v2rayn.json
 sed -i 's/true/false/g' /root/HY/URL.txt
+else
+hy
+fi
 else
 certificatepp='/root/private.key'
 certificatecc='/root/cert.crt'
 blue "当前正在使用的证书：acme申请的证书，可更换为自签bing证书"
 echo
-inscertificate
+readp "是否切换？（回车或Yy为是。其他选择为否，并返回主菜单）\n请选择：" choose
+if [ -z "${choose}" ] || [[ $choose =[Yy] ]]; then
+if [[ -f /etc/hysteria/cert.crt && -f /etc/hysteria/private.key ]]; then
+ym=www.bing.com
+blue "经检测，之前已申请过自签证书，已直接引用\n"
+else
+openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
+openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=www.bing.com"
+ym=www.bing.com
+fi
+certificatep='/etc/hysteria/private.key'
+certificatec='/etc/hysteria/cert.crt'
 certclient
 sed -i '21s/false/true/g' /root/HY/acl/v2rayn.json
 sed -i 's/false/true/g' /root/HY/URL.txt
+else
+hy
+fi
 fi
 
 if [[ $certificate = '/etc/hysteria/cert.crt' && -n $(curl -s6m5 https://ip.gs -k) ]]; then
@@ -462,6 +488,7 @@ fi
 sed -i "s!$certificatepp!$certificatep!g" /etc/hysteria/config.json
 sed -i "s!$certificatecc!$certificatec!g" /etc/hysteria/config.json
 systemctl restart hysteria-server
+hysteriashare
 }
 
 changeip(){
