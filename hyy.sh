@@ -155,6 +155,8 @@ if [ -z "${certificate}" ] || [ $certificate == "1" ];then
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
 openssl req -new -x509 -days 36500 -key /etc/hysteria/private.key -out /etc/hysteria/cert.crt -subj "/CN=www.bing.com"
 ym=www.bing.com
+certificatep='/etc/hysteria/private.key'
+certificatec='/etc/hysteria/cert.crt'
 blue "已确认证书模式: www.bing.com自签证书\n"
 elif [ $certificate == "2" ];then
 if [[ -f /root/cert.crt && -f /root/private.key ]] && [[ -s /root/cert.crt && -s /root/private.key ]]; then
@@ -166,6 +168,8 @@ else
 wget -N https://gitlab.com/rwkgyg/acme-script/raw/main/acme.sh && bash acme.sh
 ym=$(cat /etc/hysteria/ca.log)
 fi
+certificatep='/root/private.key'
+certificatec='/root/cert.crt'
 else 
 red "输入错误，请重新选择" && inscertificate
 fi
