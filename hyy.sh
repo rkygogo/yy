@@ -459,13 +459,13 @@ sed -i "s/$servername/$ym/g" /root/HY/acl/v2rayn.json
 sed -i "s/$servername/$ym/g" /root/HY/URL.txt
 elif [[ $certificate = '/root/cert.crt' && -n $(curl -s6m5 https://ip.gs -k) ]]; then
 sed -i "2s/$oldserver/\[${ymip}\]/g" /root/HY/acl/v2rayn.json
-sed -i "s/$oldserver/\[${ymip}\]/g" /root/HY/URL.txt
+sed -i "s/$oldserver/\[${ymip}\]" /root/HY/URL.txt
 sed -i "s/$servername/$ym/g" /root/HY/acl/v2rayn.json
 sed -i "s/$servername/$ym/g" /root/HY/URL.txt
 else
-sed -i "s/$oldserver/${ymip}/g" /root/HY/acl/v2rayn.json
+sed -i "2s/$oldserver/${ymip}/g" /root/HY/acl/v2rayn.json
 sed -i "s/$servername/$ym/g" /root/HY/acl/v2rayn.json
-sed -i "s/$oldserver/${ymip}/g" /root/HY/URL.txt
+sed -i "s/$oldserver/${ymip}" /root/HY/URL.txt
 sed -i "s/$servername/$ym/g" /root/HY/URL.txt
 fi
 
