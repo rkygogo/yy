@@ -359,11 +359,8 @@ sed -i "s/$noprotocol/$hysteria_protocol/g" /etc/hysteria/config.json
 sed -i "s/$noprotocol/$hysteria_protocol/g" /root/HY/acl/v2rayn.json
 sed -i "s/$noprotocol/$hysteria_protocol/g" /root/HY/URL.txt
 systemctl restart hysteria-server
-blue "hysteria代理服务的协议已由 $noprotocol 更换为 $hysteria_protocol "
-green "v2rayn客户端配置文件已更新，保存到 /root/HY/acl/v2rayn.json\n"
-yellow "$(cat /root/HY/acl/v2rayn.json)\n"
-green "分享链接已更新，保存到 /root/HY/URL.txt"
-yellow "$(cat /root/HY/URL.txt)"
+blue "hysteria代理服务的协议已由 $noprotocol 更换为 $hysteria_protocol ，配置已更新 "
+hysteriashare
 }
 
 changecertificate(){
@@ -569,9 +566,9 @@ hysteriashare(){
 if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -f '/etc/hysteria/config.json' ]]; then
 red "未正常安装hysteria!" && exit
 fi
-green "当前v2rayn客户端配置文件v2rayn.json内容如下\n"
+green "当前v2rayn客户端配置文件v2rayn.json内容如下，保存到 /root/HY/acl/v2rayn.json\n"
 yellow "$(cat /root/HY/acl/v2rayn.json)\n"
-green "当前hysteria节点分享链接如下："
+green "当前hysteria节点分享链接如下，保存到 /root/HY/URL.txt："
 yellow "$(cat /root/HY/URL.txt)"
 }
 
