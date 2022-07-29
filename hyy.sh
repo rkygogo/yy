@@ -424,8 +424,8 @@ certificatepp='/etc/hysteria/private.key'
 certificatecc='/etc/hysteria/cert.crt'
 blue "当前正在使用的证书：自签bing证书，可更换为acme申请的证书"
 echo
-readp "是否切换？（回车或Yy为是。其他选择为否，并返回主菜单）\n请选择：" choose
-if [ -z "${choose}" ] || [[ $choose =[Yy] ]]; then
+readp "是否切换？（回车为是。其他选择为否，并返回主菜单）\n请选择：" choose
+if [ -z "${choose}" ]; then
 if [[ -f /root/cert.crt && -f /root/private.key ]]; then
 blue "经检测，之前已申请过acme证书，可直接引用\n"
 readp "请输入已申请过acme证书域名:" ym
@@ -448,8 +448,8 @@ certificatepp='/root/private.key'
 certificatecc='/root/cert.crt'
 blue "当前正在使用的证书：acme申请的证书，可更换为自签bing证书"
 echo
-readp "是否切换？（回车或Yy为是。其他选择为否，并返回主菜单）\n请选择：" choose
-if [ -z "${choose}" ] || [[ $choose =[Yy] ]]; then
+readp "是否切换？（回车为是。其他选择为否，并返回主菜单）\n请选择：" choose
+if [ -z "${choose}" ]; then
 if [[ -f /etc/hysteria/cert.crt && -f /etc/hysteria/private.key ]]; then
 ym=www.bing.com
 blue "经检测，之前已申请过自签证书，已直接引用\n"
