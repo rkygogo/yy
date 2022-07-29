@@ -44,6 +44,18 @@ bit=`uname -m`
 vi=`systemd-detect-virt`
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
+wgcfgo(){
+wgcfv6=$(curl -s6m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
+wgcfv4=$(curl -s4m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
+if [[ ! $wgcfv4 =~ on|plus && ! $wgcfv6 =~ on|plus ]]; then
+sureipadress
+else
+systemctl stop wg-quick@wgcf >/dev/null 2>&1
+sureipadress
+systemctl start wg-quick@wgcf >/dev/null 2>&1
+fi
+}
+
 start(){
 if [[ -n $(sysctl net.ipv4.tcp_congestion_control 2>/dev/null | awk -F ' ' '{print $3}') ]]; then
 bbr=`sysctl net.ipv4.tcp_congestion_control | awk -F ' ' '{print $3}'`
@@ -367,9 +379,7 @@ changecertificate(){
 if [[ -z $(systemctl status hysteria-server 2>/dev/null | grep -w active) || ! -f '/etc/hysteria/config.json' ]]; then
 red "未正常安装hysteria!" && exit
 fi
-
 certclient(){
-servername=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server_name | awk '{print $2}' | awk -F '"' '{ print $2}'`
 sureipadress(){
 ip=$(curl -s6m5 https://ip.gs -k) || ip=$(curl -s4m5 https://ip.gs -k)
 certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print $2}' | awk -F '"' '{ print $2}'`
@@ -382,7 +392,6 @@ fi
 else
 oldserver=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server | awk '{print $2}' | awk -F '"' '{ print $2}'| cut -d ':' -f 1`
 fi
-
 if [[ $certificate = '/etc/hysteria/cert.crt' ]]; then
 ym=$(cat /etc/hysteria/ca.log)
 ymip=$(cat /etc/hysteria/ca.log)
@@ -391,17 +400,9 @@ ym=www.bing.com
 ymip=$ip
 fi
 }
-wgcfv6=$(curl -s6m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
-wgcfv4=$(curl -s4m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
-if [[ ! $wgcfv4 =~ on|plus && ! $wgcfv6 =~ on|plus ]]; then
-sureipadress
-else
-systemctl stop wg-quick@wgcf >/dev/null 2>&1
-sureipadress
-systemctl start wg-quick@wgcf >/dev/null 2>&1
-fi
+wgcfgo
 }
-
+servername=`cat /root/HY/acl/v2rayn.json 2>/dev/null | grep -w server_name | awk '{print $2}' | awk -F '"' '{ print $2}'`
 certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print $2}' | awk -F '"' '{ print $2}'`
 if [[ $certificate = '/etc/hysteria/cert.crt' ]]; then
 certificatepp='/etc/hysteria/private.key'
@@ -452,23 +453,24 @@ hy
 fi
 fi
 
+sureipadress(){
 if [[ $certificate = '/etc/hysteria/cert.crt' && -n $(curl -s6m5 https://ip.gs -k) ]]; then
 sed -i "2s/\[$oldserver\]/${ymip}/g" /root/HY/acl/v2rayn.json
 sed -i "s/\[$oldserver\]/${ymip}/g" /root/HY/URL.txt
-sed -i "s/$servername/$ym/g" /root/HY/acl/v2rayn.json
-sed -i "s/$servername/$ym/g" /root/HY/URL.txt
 elif [[ $certificate = '/root/cert.crt' && -n $(curl -s6m5 https://ip.gs -k) ]]; then
 sed -i "2s/$oldserver/\[${ymip}\]/g" /root/HY/acl/v2rayn.json
 sed -i "s/$oldserver/\[${ymip}\]" /root/HY/URL.txt
-sed -i "s/$servername/$ym/g" /root/HY/acl/v2rayn.json
-sed -i "s/$servername/$ym/g" /root/HY/URL.txt
-else
+elif [[ $certificate = '/root/cert.crt' && -z $(curl -s6m5 https://ip.gs -k) ]]; then
 sed -i "2s/$oldserver/${ymip}/g" /root/HY/acl/v2rayn.json
-sed -i "s/$servername/$ym/g" /root/HY/acl/v2rayn.json
 sed -i "s/$oldserver/${ymip}" /root/HY/URL.txt
-sed -i "s/$servername/$ym/g" /root/HY/URL.txt
+if [[ $certificate = '/etc/hysteria/cert.crt' && -z $(curl -s6m5 https://ip.gs -k) ]]; then
+sed -i "2s/$oldserver/${ymip}/g" /root/HY/acl/v2rayn.json
+sed -i "s/$oldserver/${ymip}/g" /root/HY/URL.txt
 fi
-
+}
+wgcfgo
+sed -i "s/$servername/$ym" /root/HY/acl/v2rayn.json
+sed -i "s/$servername/$ym" /root/HY/URL.txt
 sed -i "s!$certificatepp!$certificatep!g" /etc/hysteria/config.json
 sed -i "s!$certificatecc!$certificatec!g" /etc/hysteria/config.json
 systemctl restart hysteria-server
@@ -580,16 +582,8 @@ else
 ymip=$(cat /etc/hysteria/ca.log)
 fi
 }
-wgcfv6=$(curl -s6m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2) 
-wgcfv4=$(curl -s4m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
-if [[ ! $wgcfv4 =~ on|plus && ! $wgcfv6 =~ on|plus ]]; then 
-sureipadress
-else
-systemctl stop wg-quick@wgcf >/dev/null 2>&1
-sureipadress
-systemctl start wg-quick@wgcf >/dev/null 2>&1
-fi
-url="hysteria://${ymip}:${port}?protocol=${hysteria_protocol}&auth=${pswd}&peer=${ym}&insecure=${ins}&upmbps=1000&downmbps=1000&alpn=h3#HY-${ymip}"
+wgcfgo
+url="hysteria://${ymip}:${port}?protocol=${hysteria_protocol}&auth=${pswd}&peer=${ym}&insecure=${ins}&upmbps=1000&downmbps=1000&alpn=h3#hysteria-ygkkk"
 echo ${url} > /root/HY/URL.txt
 green "六、hysteria代理服务安装完成，生成脚本的快捷方式为 hy"
 blue "v2rayn客户端配置文件v2rayn.json及代理规则文件保存到 /root/HY/acl\n"
