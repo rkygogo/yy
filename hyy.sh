@@ -1,5 +1,5 @@
 #!/bin/bash
-hyygV="22.7.28 V 2.0"
+hyygV="22.7.28 V 2.1"
 remoteV=`wget -qO- https://gitlab.com/rwkgyg/hysteria-yg/raw/main/hysteria.sh | sed  -n 2p | cut -d '"' -f 2`
 red='\033[0;31m'
 bblue='\033[0;34m'
@@ -507,9 +507,15 @@ mv -f Country.mmdb routes.acl /root/HY/acl
 hysteriastatus
 white "$status\n"
 sureipadress(){
+certificate=`cat /etc/hysteria/config.json 2>/dev/null | grep cert | awk '{print $2}' | awk -F '"' '{ print $2}'`
+if [[ $certificate = '/etc/hysteria/cert.crt' ]]; then
 ip=$(curl -s6m5 https://ip.gs -k) || ip=$(curl -s4m5 https://ip.gs -k)
 [[ -n $(echo $ip | grep ":") ]] && ymip="[$ip]" || ymip=$ip
+else
+ymip=$(cat /etc/hysteria/ca.log)
+fi
 }
+
 wgcfv6=$(curl -s6m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2) 
 wgcfv4=$(curl -s4m5 https://www.cloudflare.com/cdn-cgi/trace -k | grep warp | cut -d= -f2)
 if [[ ! $wgcfv4 =~ on|plus && ! $wgcfv6 =~ on|plus ]]; then 
