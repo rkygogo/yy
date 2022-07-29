@@ -149,7 +149,7 @@ rm -rf install_server.sh
 }
 
 inscertificate(){
-green "一、hysteria协议证书申请方式选择如下:"
+green "hysteria协议证书申请方式选择如下:"
 readp "1. www.bing.com自签证书（回车默认）\n2. acme一键申请证书（支持常规80端口模式与dns api模式）\n请选择：" certificate
 if [ -z "${certificate}" ] || [ $certificate == "1" ];then
 openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/private.key
@@ -176,7 +176,7 @@ fi
 }
 
 inspr(){
-green "二、hysteria的传输协议选择如下:"
+green "hysteria的传输协议选择如下:"
 readp "1. udp（回车默认，推荐）\n2. wechat-video（推荐）\n3. faketcp（仅支持linux客户端且需要root权限）\n请选择：" protocol
 if [ -z "${protocol}" ] || [ $protocol == "1" ];then
 hysteria_protocol="udp"
@@ -192,7 +192,7 @@ blue "已确认传输协议: ${hysteria_protocol}\n"
 }
 
 insport(){
-readp "三、hysteria端口设置[1-65535]（回车跳过为2000-65535之间的随机端口）：" port
+readp "hysteria端口设置[1-65535]（回车跳过为2000-65535之间的随机端口）：" port
 if [[ -z $port ]]; then
 port=$(shuf -i 2000-65535 -n 1)
 until [[ -z $(ss -ntlp | awk '{print $4}' | grep -w "$port") ]]
@@ -209,7 +209,7 @@ blue "已确认端口：$port\n"
 }
 
 inspswd(){
-readp "四、hysteria设置验证密码（回车跳过为随机6位字符）：" pswd
+readp "hysteria设置验证密码（回车跳过为随机6位字符）：" pswd
 if [[ -z ${pswd} ]]; then
 pswd=`date +%s%N |md5sum | cut -c 1-6`
 fi
@@ -223,7 +223,7 @@ blue "已确认验证密码：${pswd}\n"
 }
 
 insconfig(){
-green "五、设置配置文件中……，稍等5秒"
+green "设置配置文件中……，稍等5秒"
 mkdir -p /root/HY/acl
 v4=$(curl -s4m5 https://ip.gs -k)
 [[ -z $v4 ]] && rpip=64 || rpip=46
@@ -473,8 +473,8 @@ sed -i "s/$oldserver/${ymip}/g" /root/HY/URL.txt
 fi
 }
 wgcfgo
-sed -i "s/$servername/$ym" /root/HY/acl/v2rayn.json
-sed -i "s/$servername/$ym" /root/HY/URL.txt
+sed -i "s/$servername/$ym/g" /root/HY/acl/v2rayn.json
+sed -i "s/$servername/$ym/g" /root/HY/URL.txt
 sed -i "s!$certificatepp!$certificatep!g" /etc/hysteria/config.json
 sed -i "s!$certificatecc!$certificatec!g" /etc/hysteria/config.json
 systemctl restart hysteria-server
@@ -538,7 +538,7 @@ hysteriashare
 }
 
 changeserv(){
-green "二、hysteria配置变更选择如下:"
+green "hysteria配置变更选择如下:"
 readp "1. 切换IPV4/IPV6出站优先级\n2. 切换传输协议类型\n3. 切换证书类型\n4. 更换验证密码\n5. 更换端口\n6. 返回上层\n请选择：" choose
 if [ $choose == "1" ];then
 changeip
@@ -589,7 +589,7 @@ fi
 wgcfgo
 url="hysteria://${ymip}:${port}?protocol=${hysteria_protocol}&auth=${pswd}&peer=${ym}&insecure=${ins}&upmbps=1000&downmbps=1000&alpn=h3#hysteria-ygkkk"
 echo ${url} > /root/HY/URL.txt
-green "六、hysteria代理服务安装完成，生成脚本的快捷方式为 hy"
+green "hysteria代理服务安装完成，生成脚本的快捷方式为 hy"
 blue "v2rayn客户端配置文件v2rayn.json及代理规则文件保存到 /root/HY/acl\n"
 yellow "$(cat /root/HY/acl/v2rayn.json)\n"
 blue "分享链接保存到 /root/HY/URL.txt"
